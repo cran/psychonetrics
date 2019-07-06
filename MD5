@@ -1,6 +1,6 @@
-db72e3119297c8c35817045056dd40fc *DESCRIPTION
+d5dde6808b1f9f7982db77c42ce06898 *DESCRIPTION
 6627b32ed5810e34b0a33b7a35dae82e *NAMESPACE
-fd384f0fc20345677acfaa8b7177a430 *NEWS
+0a7d5a0992432890e35ef8f62b322870 *NEWS
 8bdeac2962f8aeec170f16ec77701664 *R/00_codeOrganization.R
 23cbf9e2c44d1fc02a92c00e7e0d9d9d *R/00_steps_to_implement_estimator.R
 d4c1d4474d1fb706b92f79f6c1700a22 *R/00_steps_to_implement_model.R
@@ -41,7 +41,7 @@ b0fe0790a25c7df1ce1dcbe99af77c2f *R/03_modelformation_missingpatterns.R
 dd9ea5a3383d18de3ba20a6dc306a15d *R/03_modelformation_startvaluesandbounds.R
 91b5e9e8fbc39cb3f45bf5a04ae0ecde *R/03_modelformation_tsData.R
 099c2912f86096674f30ed8b06266211 *R/04_generalFit_fitfunction.R
-16201d390143ff4e2bdc3de8745b8092 *R/04_generalFit_gradient.R
+77eb6e5449ead33ad43d00abbdba81e2 *R/04_generalFit_gradient.R
 b7f3af31955bb7ea1249dc02800e2c5f *R/04_generalFit_logLikelihood.R
 c91c9a1ad580ea641e6d7ff8b18e7bc5 *R/04_generalfit_FisherInformation.R
 8924d992383c8c02875f2e90a83cdb81 *R/04_generalfit_impliedModel.R
@@ -114,7 +114,7 @@ a5bf4a8eb2bd8e755045b3650f675029 *R/d_stepup.R
 fae4fcf01baa430fe7385b20b1a9abfc *R/e_modelmodifications_groupequal.R
 7b5641a5764f6175cc47e73f321f667a *R/e_modelmodifications_groupfree.R
 bb445af014c371bcc296d8297142f6cc *R/e_modelmodifications_intersectionmodel.R
-5699333eb64cc150360ca753c809ff09 *R/e_modelmodifications_prune.R
+dd8bc2aaf47c8fa28a44ef7240fd77a9 *R/e_modelmodifications_prune.R
 36f9721f74cb4e6276fc4c29f2dcfd0f *R/e_modelmodifications_setequal.R
 5cadc8ac5a9fb255b81d5ec2af175c9a *R/e_modelmodifications_unionmodel.R
 62ed640c41a1f5503ef95c68f3d5afd7 *R/f_conveneince_changedata.R
@@ -132,7 +132,7 @@ ab33411e578c67534eec66438d5b9b59 *R/f_convenience_modelCompare.R
 46b41806d53487f2aea73a346cfabcd9 *R/f_convenience_printMethod.R
 f6cebf8da969167611240c80872c2723 *R/f_convenience_residuals.R
 c203c68dd6e3b9e9b9ccf2b906469c8d *R/g_simulations_replicator.R
-ec318d78ed90316d1a425e75f3509882 *build/partial.rdb
+c9e261b04bc00b257251836730b985d2 *build/partial.rdb
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
 c9786e23507e101dd665e08a9576dcdc *man/MIs.Rd
 1c8ae8b47e59e7f0c668ab66fbeeed1f *man/StarWars.Rd
@@ -163,8 +163,8 @@ f71be00ea8957a3f1c8ccdeb4cb71090 *man/unionmodel_intersectionmodel.Rd
 2a007103ce2c027a478e8a6ae73f405b *man/var1_family.Rd
 6fb8f0b9e7a13ab2a96e0c0c7d416585 *man/varcov_family.Rd
 bc3fba84a969958b4ad86f539cf11dd2 *src/04_generalfit_loglik_fimlcpp.cpp
-4e559eda4523367b0b4ec3f216cc9f14 *src/06_DWLS_Wmat.cpp
-ce7d5dac0248ca6b87598862f4a6586a *src/06_WLS_Wmat.cpp
+c27ec89f170dc7a0811c1b9a41c0d8b9 *src/06_DWLS_Wmat.cpp
+cf31487db3f1de0c872564a3a6408bce *src/06_WLS_Wmat.cpp
 2f8a2429a122258e608c5ac901f75ca8 *src/07_FIMLestimator_expected_hessian_gauss_cppversion.cpp
 44f7e18ec6fdaafe750aebe8332f359e *src/07_FIMLestimator_fitfunction_cppversion.cpp
 94afe2e2c32a28ab7bb27bac0afb793a *src/07_FIMLestimator_jacobian_gauss.cpp
