@@ -1,7 +1,6 @@
 # General gradient function:
 psychonetrics_gradient <- function(x, model){
   # I need an estimator part, a model part and a manual part
-
   # Prepare
   # message("Prep model...")
   prep <- prepareModel(x, model)
@@ -37,7 +36,8 @@ psychonetrics_gradient <- function(x, model){
     "var1" = d_phi_theta_var1,
     # "panelvar1" = d_phi_theta_panelvar1,
     "dlvm1" = d_phi_theta_dlvm1,
-    "tsdlvm1" = d_phi_theta_tsdlvm1
+    "tsdlvm1" = d_phi_theta_tsdlvm1,
+    "meta_varcov" = d_phi_theta_meta_varcov
     # "cholesky" = d_phi_theta_cholesky
   )
 
@@ -46,7 +46,7 @@ psychonetrics_gradient <- function(x, model){
  
   # Manual part:
   manualPart <- Mmatrix(model@parameters)
- 
+
   # Full Jacobian:
   Jac <- estimatorPart %*% modelPart %*% manualPart
 

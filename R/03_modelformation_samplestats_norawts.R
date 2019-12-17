@@ -2,6 +2,7 @@
 samplestats_norawts <- function(
   data, # Dataset
   vars, # character indicating the variables Extracted if missing from data - group variable
+  ordered = character(0),
   groups, # ignored if missing. Can be character indicating groupvar, or vector with names of groups
   covs, # alternative covs (array nvar * nvar * ngroup)
   means, # alternative means (matrix nvar * ngroup)
@@ -10,12 +11,17 @@ samplestats_norawts <- function(
   fimldata = FALSE,
   verbose = TRUE,
   storedata = FALSE,
-  weightsmatrix = "none" #c("none","identity","full","diag")
+  weightsmatrix = "none", #c("none","identity","full","diag")
+  meanstructure = TRUE,
+  corinput
 ){
   missing <- match.arg(missing)
   # weightsmatrix <- match.arg(weightsmatrix)
   
   # Check data:
+  if (missing(data) & length(ordered) >0){
+    stop("Ordinal data only supported with raw data as input.")
+  }
   if (missing(data) & missing(covs)){
     stop("'data' and 'covs' may not both be missing")
   }
@@ -74,44 +80,138 @@ samplestats_norawts <- function(
       data <- data[rowSums(is.na(data[,c(vars)])) == 0,]
     }
     
+    # If ordered is TRUE, set all to ordered:
+    if (isTRUE(ordered)){
+      ordered <- vars
+    }
+    
+    # Check if none or all are ordered:
+    # FIXME: ADD POLYSERIALS LATER!!!
+    
+    if (!sum(vars %in% ordered) == 0 && !sum(vars %in% ordered) == length(vars)){
+      stop("Either all variables or no variables may be ordered...")
+    }
+    # Do I need a WLS.V?
+    if (length(ordered) > 0 && is.character(weightsmatrix)){
+      needWLSV <- TRUE
+      weightsmatrix <- list()
+    } else {
+      needWLSV <- FALSE
+    }
+    
     # Create covs and means arguments:
     if (nGroup == 1){
-      cov <- (nrow(data[,c(vars)])-1)/(nrow(data[,c(vars)])) * cov(data[,c(vars)], use = switch(
-        missing, "listwise" = "complete.obs", "pairwise" = "pairwise.complete.obs"
-      ))
-      cov <- 0.5*(cov + t(cov))
-      covs <- list(as(cov,"dsyMatrix"))
-      if (!any(is.na(cov))){
-        cors <- list(new("corMatrix", cov2cor(cov), sd = diag(cov)))         
+      if (length(ordered)  > 0){
+        
+        
+        # Run the Cpp function:
+        prepRes <- covPrepare_cpp(
+          as.matrix(data[,vars]),
+          vars %in% ordered,
+          WLSweights = needWLSV,
+          verbose = verbose
+        )
+        
+        if (any(eigen(prepRes$covmat)$values < 0)){
+          stop("Correlation matrix is not positive semi-definite.")
+          }
+        
+        # Obtain results:
+        covs <- list(as(prepRes$covmat, "Matrix"))
+        cors <- list(as(cov2cor(prepRes$covmat), "Matrix"))
+        thresholds <- list(prepRes$means_thresholds)
+        means <- list(rep(NA,length(vars)))
+        for (i in seq_along(vars)){
+          if (!vars[i] %in% ordered){
+            means[[1]][i] <- prepRes$means_thresholds[[i]]
+            thresholds[[1]][[i]] <- numeric(0)
+          }
+        }
+        
+        if (needWLSV){
+          weightsmatrix[[1]] <- prepRes$WLS_V
+        }
+        
       } else {
-        cors <- list()
+        
+        cov <- (nrow(data[,c(vars)])-1)/(nrow(data[,c(vars)])) * cov(data[,c(vars)], use = switch(
+          missing, "listwise" = "complete.obs", "pairwise" = "pairwise.complete.obs"
+        ))
+        cov <- 0.5*(cov + t(cov))
+        covs <- list(as(cov,"dsyMatrix"))
+        if (!any(is.na(cov))){
+          cors <- list(new("corMatrix", cov2cor(cov), sd = diag(cov)))         
+        } else {
+          cors <- list()
+        }
+        # cors <- list(new("corMatrix", cov2cor(cov), sd = diag(cov)))
+        means <- list(colMeans(data[,c(vars)], na.rm = TRUE))
+        
+        thresholds <- list(list())
       }
-      # cors <- list(new("corMatrix", cov2cor(cov), sd = diag(cov)))
-      means <- list(colMeans(data[,c(vars)], na.rm = TRUE))
+      
       # groupNames <- unique(data[[groups]])
       
     } else {
       covs <- list()
       cors <- list()
       means <- list()
+      thresholds <- lapply(1:nGroup,function(x)list())
       # groupNames <- unique(data[[groups]])
       
       for (g in 1:nGroup){
-        subData <- data[data[[groups]] == g,c(vars)]
-        cov <-  (nrow(subData)-1)/(nrow(subData)) * 
-          cov(subData, use = switch(
-            missing, "listwise" = "complete.obs", "pairwise" = "pairwise.complete.obs"
-          ))
-        cov <- 0.5*(cov + t(cov))
-        covs[[g]] <- as(cov,"dsyMatrix")
         
-        if (!any(is.na(cov))){
-          cors[[g]] <- new("corMatrix", cov2cor(cov), sd = diag(cov))          
+        if (length(ordered)  > 0){
+          
+          # Run the Cpp function:
+          prepRes <- covPrepare_cpp(
+            as.matrix(data[,vars]),
+            vars %in% ordered,
+            WLSweights = needWLSV
+          )
+          
+          if (any(eigen(prepRes$covmat)$values < 0)){
+            stop("Correlation matrix is not positive semi-definite.")
+          }
+          
+          # Obtain results:
+          covs[[g]] <- as(prepRes$covmat, "Matrix")
+          cors[[g]] <- as(cov2cor(prepRes$covmat), "Matrix")
+          thresholds[[g]] <- prepRes$means_thresholds
+          means[[g]] <- rep(NA,length(vars))
+          for (i in seq_along(vars)){
+            if (!vars[i] %in% ordered){
+              means[[g]][i] <- prepRes$means_thresholds[[i]]
+              thresholds[[g]][[i]] <- numeric(0)
+            } 
+          }
+          
+          if (needWLSV){
+            weightsmatrix[[g]] <- prepRes$WLS_V
+          }
+          
         } else {
-          cors[[g]] <- NA
+          
+          
+          
+          
+          subData <- data[data[[groups]] == g,c(vars)]
+          cov <-  (nrow(subData)-1)/(nrow(subData)) * 
+            cov(subData, use = switch(
+              missing, "listwise" = "complete.obs", "pairwise" = "pairwise.complete.obs"
+            ))
+          cov <- 0.5*(cov + t(cov))
+          covs[[g]] <- as(cov,"dsyMatrix")
+          
+          if (!any(is.na(cov))){
+            cors[[g]] <- new("corMatrix", cov2cor(cov), sd = diag(cov))          
+          } else {
+            cors[[g]] <- NA
+          }
+          
+          means[[g]] <- colMeans(subData, na.rm = TRUE)
+          
         }
-        
-        means[[g]] <- colMeans(subData, na.rm = TRUE)
       }
       
       
@@ -137,6 +237,8 @@ samplestats_norawts <- function(
     
     nobs <- as.vector(tapply(data[[groups]],data[[groups]],length))
   } else {
+    thresholds <- list()
+    
     ### Input via matrices ###
     # Check groups:
     if (missing(groups) || is.null(groups)){
@@ -252,8 +354,22 @@ samplestats_norawts <- function(
   names(covs) <- groupNames
   names(means) <- groupNames
   
+  # Determine corinput (will also detect if standardized data was used as input):
+  if (missing(corinput)){
+    
+    if (all(
+      sapply(covs,function(x){
+        all(abs(diag(x) - 1) < sqrt(.Machine$double.eps))
+      })
+    )){
+      corinput <- TRUE
+    } else {
+      corinput <- FALSE
+    }
+  }
+  
   # Generate samplestats object:
-  object <- generate_psychonetrics_samplestats(covs = covs, cors = cors, means = means)
+  object <- generate_psychonetrics_samplestats(covs = covs, cors = cors, means = means, corinput = corinput, thresholds = thresholds)
   
   # Fill groups:
   object@groups <- data.frame(
@@ -265,7 +381,10 @@ samplestats_norawts <- function(
   # Fill variables:
   object@variables <- data.frame(
     label = vars,
-    id = seq_along(vars), stringsAsFactors = FALSE
+    id = seq_along(vars), 
+    ordered = vars %in% ordered,
+    
+    stringsAsFactors = FALSE
   )
   
   # add fiml data (still summary statistics...):
@@ -279,7 +398,7 @@ samplestats_norawts <- function(
         missingpatterns_covs(means[[x]],covs[[x]],nobs[x],verbose=verbose)
       })
     }
- 
+    
   }
   
   # add full data:
@@ -295,44 +414,50 @@ samplestats_norawts <- function(
   }
   
   # add WLS.V:
+  
   if (is.list(weightsmatrix) || is.matrix(weightsmatrix)){
     if (is.list(weightsmatrix)){
-      object@WLS.V <- as(weightsmatrix,"Matrix")
+      object@WLS.V <- lapply(weightsmatrix, function(x)as(x, "Matrix")) # as(weightsmatrix,"Matrix")
     } else {
       object@WLS.V <- lapply(1:nGroup,function(x)as(weightsmatrix,"Matrix"))
     }
     
     # Check if mean structure is added, otherwise add identitiy matrix:
-    for (g in 1:nGroup){
-      if (ncol(object@WLS.V[[1]]) != nVars + nVars*(nVars+1)/2){
-        if (ncol(object@WLS.V[[1]]) == nVars*(nVars+1)/2){
-          if (verbose){
-            warning("WLS.V only supplied for variance/covariance structure. Adding identitiy matrix to means part.")
-          }
-          object@WLS.V[[1]] <- rbind(
-            cbind(Diagonal(nVars), Matrix(0,nVars,nVars*(nVars+1)/2)),
-            cbind(Matrix(0,nVars*(nVars+1)/2,nVars), object@WLS.V[[1]])
-            )
-        } else {
-          stop("WLS.V not of appropriate dimension.")  
-        }
-      }
-    }
+    
+    # FIXME: DISABLED FOR NOW
+    #   if (ncol(object@WLS.V[[1]]) != nVars + nVars*(nVars+1)/2){
+    #     if (ncol(object@WLS.V[[1]]) == nVars*(nVars+1)/2){
+    #       if (verbose && meanstructure){
+    #         warning("WLS.V only supplied for variance/covariance structure. Adding identitiy matrix to means part.")
+    #       }
+    #       object@WLS.V[[1]] <- rbind(
+    #         cbind(Diagonal(nVars), Matrix(0,nVars,nVars*(nVars+1)/2)),
+    #         cbind(Matrix(0,nVars*(nVars+1)/2,nVars), object@WLS.V[[1]])
+    #         )
+    #     } else {
+    #       stop("WLS.V not of appropriate dimension.")  
+    #     }
+    #   }
+    # }
   } else {
-    if (weightsmatrix != "none"){
-      for (g in 1:nGroup){
-        if (weightsmatrix == "identity"){
-          object@WLS.V[[g]] <- Diagonal(nVars + nVars*(nVars+1)/2)  
-        } else if (weightsmatrix == "full"){
-          subData <- data[data[[groups]] == g,c(vars)]
-          object@WLS.V[[g]] <- LS_weightsmat(subData)
-        } else if (weightsmatrix == "diag"){
-          subData <- data[data[[groups]] == g,c(vars)]
-          object@WLS.V[[g]] <- LS_weightsmat(subData, type = "diagonal")
+    for (g in 1:nGroup){
+      if (is.character(weightsmatrix) && weightsmatrix != "none"){
+        for (g in 1:nGroup){
+          if (weightsmatrix == "identity"){
+            object@WLS.V[[g]] <- Diagonal(nVars + nVars*(nVars+1)/2)  
+          } else if (weightsmatrix == "full"){
+            subData <- data[data[[groups]] == g,c(vars)]
+            object@WLS.V[[g]] <- LS_weightsmat(subData,meanstructure=meanstructure,corinput=corinput)
+          } else if (weightsmatrix == "diag"){
+            subData <- data[data[[groups]] == g,c(vars)]
+            object@WLS.V[[g]] <- LS_weightsmat(subData, type = "diagonal",meanstructure=meanstructure,corinput=corinput)
+          }
         }
       }
     }
   }
+  
+  
   
   
   

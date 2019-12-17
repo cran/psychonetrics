@@ -95,6 +95,190 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// covPrepare_cpp
+List covPrepare_cpp(NumericMatrix data, LogicalVector isOrdered, double tol, bool WLSweights, bool verbose);
+RcppExport SEXP _psychonetrics_covPrepare_cpp(SEXP dataSEXP, SEXP isOrderedSEXP, SEXP tolSEXP, SEXP WLSweightsSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type isOrdered(isOrderedSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type WLSweights(WLSweightsSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(covPrepare_cpp(data, isOrdered, tol, WLSweights, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// computeMean
+double computeMean(NumericVector y);
+RcppExport SEXP _psychonetrics_computeMean(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(computeMean(y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// computeThresholds
+NumericVector computeThresholds(IntegerVector y);
+RcppExport SEXP _psychonetrics_computeThresholds(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(computeThresholds(y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pearsonCov
+double pearsonCov(Rcpp::NumericVector y1, Rcpp::NumericVector y2, double mean1, double mean2, bool unbiased);
+RcppExport SEXP _psychonetrics_pearsonCov(SEXP y1SEXP, SEXP y2SEXP, SEXP mean1SEXP, SEXP mean2SEXP, SEXP unbiasedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y2(y2SEXP);
+    Rcpp::traits::input_parameter< double >::type mean1(mean1SEXP);
+    Rcpp::traits::input_parameter< double >::type mean2(mean2SEXP);
+    Rcpp::traits::input_parameter< bool >::type unbiased(unbiasedSEXP);
+    rcpp_result_gen = Rcpp::wrap(pearsonCov(y1, y2, mean1, mean2, unbiased));
+    return rcpp_result_gen;
+END_RCPP
+}
+// toOrdinal
+IntegerVector toOrdinal(NumericVector var);
+RcppExport SEXP _psychonetrics_toOrdinal(SEXP varSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type var(varSEXP);
+    rcpp_result_gen = Rcpp::wrap(toOrdinal(var));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_table
+IntegerMatrix cpp_table(IntegerVector y1, IntegerVector y2);
+RcppExport SEXP _psychonetrics_cpp_table(SEXP y1SEXP, SEXP y2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y2(y2SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_table(y1, y2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// polychoric_fit_summary
+double polychoric_fit_summary(double rho, NumericMatrix tab, NumericVector t1, NumericVector t2);
+RcppExport SEXP _psychonetrics_polychoric_fit_summary(SEXP rhoSEXP, SEXP tabSEXP, SEXP t1SEXP, SEXP t2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tab(tabSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t2(t2SEXP);
+    rcpp_result_gen = Rcpp::wrap(polychoric_fit_summary(rho, tab, t1, t2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// binormal_density
+double binormal_density(double x1, double x2, double rho, double sigma1, double sigma2, double mu1, double mu2);
+RcppExport SEXP _psychonetrics_binormal_density(SEXP x1SEXP, SEXP x2SEXP, SEXP rhoSEXP, SEXP sigma1SEXP, SEXP sigma2SEXP, SEXP mu1SEXP, SEXP mu2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x1(x1SEXP);
+    Rcpp::traits::input_parameter< double >::type x2(x2SEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma1(sigma1SEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< double >::type mu1(mu1SEXP);
+    Rcpp::traits::input_parameter< double >::type mu2(mu2SEXP);
+    rcpp_result_gen = Rcpp::wrap(binormal_density(x1, x2, rho, sigma1, sigma2, mu1, mu2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// polychoric_grad_summary
+double polychoric_grad_summary(double rho, NumericMatrix tab, NumericVector t1, NumericVector t2);
+RcppExport SEXP _psychonetrics_polychoric_grad_summary(SEXP rhoSEXP, SEXP tabSEXP, SEXP t1SEXP, SEXP t2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tab(tabSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t2(t2SEXP);
+    rcpp_result_gen = Rcpp::wrap(polychoric_grad_summary(rho, tab, t1, t2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// estimate_polychoric
+double estimate_polychoric(IntegerVector y1, IntegerVector y2, NumericVector t1, NumericVector t2, double tol, double stepsize, int maxIt, double zeroAdd);
+RcppExport SEXP _psychonetrics_estimate_polychoric(SEXP y1SEXP, SEXP y2SEXP, SEXP t1SEXP, SEXP t2SEXP, SEXP tolSEXP, SEXP stepsizeSEXP, SEXP maxItSEXP, SEXP zeroAddSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y2(y2SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t2(t2SEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< double >::type stepsize(stepsizeSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIt(maxItSEXP);
+    Rcpp::traits::input_parameter< double >::type zeroAdd(zeroAddSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_polychoric(y1, y2, t1, t2, tol, stepsize, maxIt, zeroAdd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// threshold_grad_singlesubject
+double threshold_grad_singlesubject(int y, int j, NumericVector t_aug);
+RcppExport SEXP _psychonetrics_threshold_grad_singlesubject(SEXP ySEXP, SEXP jSEXP, SEXP t_augSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t_aug(t_augSEXP);
+    rcpp_result_gen = Rcpp::wrap(threshold_grad_singlesubject(y, j, t_aug));
+    return rcpp_result_gen;
+END_RCPP
+}
+// polychor_grad_singlesubject
+double polychor_grad_singlesubject(int y1, int y2, double rho, NumericVector t_aug1, NumericVector t_aug2, double pi);
+RcppExport SEXP _psychonetrics_polychor_grad_singlesubject(SEXP y1SEXP, SEXP y2SEXP, SEXP rhoSEXP, SEXP t_aug1SEXP, SEXP t_aug2SEXP, SEXP piSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< int >::type y2(y2SEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t_aug1(t_aug1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t_aug2(t_aug2SEXP);
+    Rcpp::traits::input_parameter< double >::type pi(piSEXP);
+    rcpp_result_gen = Rcpp::wrap(polychor_grad_singlesubject(y1, y2, rho, t_aug1, t_aug2, pi));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bthreshold_grad_singlesubject
+double bthreshold_grad_singlesubject(int y1, int y2, double rho, int tIndex, NumericVector t_aug1, NumericVector t_aug2, double pi);
+RcppExport SEXP _psychonetrics_bthreshold_grad_singlesubject(SEXP y1SEXP, SEXP y2SEXP, SEXP rhoSEXP, SEXP tIndexSEXP, SEXP t_aug1SEXP, SEXP t_aug2SEXP, SEXP piSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< int >::type y2(y2SEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< int >::type tIndex(tIndexSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t_aug1(t_aug1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t_aug2(t_aug2SEXP);
+    Rcpp::traits::input_parameter< double >::type pi(piSEXP);
+    rcpp_result_gen = Rcpp::wrap(bthreshold_grad_singlesubject(y1, y2, rho, tIndex, t_aug1, t_aug2, pi));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_psychonetrics_logLikelihood_gaussian_subgroup_fiml_cpp", (DL_FUNC) &_psychonetrics_logLikelihood_gaussian_subgroup_fiml_cpp, 5},
@@ -103,6 +287,19 @@ static const R_CallMethodDef CallEntries[] = {
     {"_psychonetrics_expected_hessian_fiml_Gaussian_group_cpp", (DL_FUNC) &_psychonetrics_expected_hessian_fiml_Gaussian_group_cpp, 5},
     {"_psychonetrics_fimlEstimator_Gauss_group_cpp", (DL_FUNC) &_psychonetrics_fimlEstimator_Gauss_group_cpp, 6},
     {"_psychonetrics_jacobian_fiml_gaussian_subgroup_sigma_cpp", (DL_FUNC) &_psychonetrics_jacobian_fiml_gaussian_subgroup_sigma_cpp, 5},
+    {"_psychonetrics_covPrepare_cpp", (DL_FUNC) &_psychonetrics_covPrepare_cpp, 5},
+    {"_psychonetrics_computeMean", (DL_FUNC) &_psychonetrics_computeMean, 1},
+    {"_psychonetrics_computeThresholds", (DL_FUNC) &_psychonetrics_computeThresholds, 1},
+    {"_psychonetrics_pearsonCov", (DL_FUNC) &_psychonetrics_pearsonCov, 5},
+    {"_psychonetrics_toOrdinal", (DL_FUNC) &_psychonetrics_toOrdinal, 1},
+    {"_psychonetrics_cpp_table", (DL_FUNC) &_psychonetrics_cpp_table, 2},
+    {"_psychonetrics_polychoric_fit_summary", (DL_FUNC) &_psychonetrics_polychoric_fit_summary, 4},
+    {"_psychonetrics_binormal_density", (DL_FUNC) &_psychonetrics_binormal_density, 7},
+    {"_psychonetrics_polychoric_grad_summary", (DL_FUNC) &_psychonetrics_polychoric_grad_summary, 4},
+    {"_psychonetrics_estimate_polychoric", (DL_FUNC) &_psychonetrics_estimate_polychoric, 8},
+    {"_psychonetrics_threshold_grad_singlesubject", (DL_FUNC) &_psychonetrics_threshold_grad_singlesubject, 3},
+    {"_psychonetrics_polychor_grad_singlesubject", (DL_FUNC) &_psychonetrics_polychor_grad_singlesubject, 6},
+    {"_psychonetrics_bthreshold_grad_singlesubject", (DL_FUNC) &_psychonetrics_bthreshold_grad_singlesubject, 7},
     {NULL, NULL, 0}
 };
 

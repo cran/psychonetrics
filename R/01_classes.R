@@ -3,9 +3,11 @@ generate_psychonetrics_samplestats <- setClass("psychonetrics_samplestats",  slo
   covs = "list",
   cors = "list",
   means = "list",
+  thresholds = "list",
   groups = "data.frame", # Data frame with information on each group  
   variables = "data.frame",
   nobs = "numeric", # Number of observations
+  corinput = "logical",
   # missingness = "list", # Missing patterns, only used when rawts = TRUE
   # data = "list" # Raw data, used only with fimldata
   fimldata = "list",
@@ -14,12 +16,16 @@ generate_psychonetrics_samplestats <- setClass("psychonetrics_samplestats",  slo
 ), prototype = list(groups = data.frame(
   label = character(0),
   id = integer(0),
-  nobs = integer(0),stringsAsFactors = FALSE
+  nobs = integer(0),
+  stringsAsFactors = FALSE
 ),
 variables = data.frame(
   label = character(0),
-  id = integer(0)
-)))
+  id = integer(0),
+  ordered = logical(0)
+),
+corinput = FALSE
+))
 
 # Timestamp:
 setOldClass("sessionInfo")
@@ -74,7 +80,8 @@ generate_psychonetrics <- setClass("psychonetrics", slots = c(
   rawts = "logical",
   Drawts = "list",
   types = "list",
-  cpp = "logical"
+  cpp = "logical",
+  meanstructure = "logical"
 ),
 prototype = list(
   model = "dummy", submodel = "none",
@@ -120,7 +127,8 @@ prototype = list(
     symmetrical = logical(0),
     sparse = logical(0),
     posdef = logical(0),
-    diagonal = logical(0)
+    diagonal = logical(0),
+    incomplete = logical(0)
   ),
   computed = FALSE,
   log = createLogList(),
@@ -128,7 +136,8 @@ prototype = list(
   optimizer = "ucminf",
   estimator = "ML",
   rawts = FALSE,
-  cpp = TRUE # Use C++ when available
+  cpp = TRUE, # Use C++ when available
+  meanstructure = TRUE
 ))
 
 # generate_psychonetrics()

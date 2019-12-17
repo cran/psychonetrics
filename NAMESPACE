@@ -1,6 +1,8 @@
 ### Dynlib ###
 useDynLib(psychonetrics, .registration = TRUE)
 
+# importFrom(metaSEM, asyCov)
+
 # Crayon:
 import(crayon)
 
@@ -12,6 +14,9 @@ export(ggm)
 export(precision)
 export(cholesky)
 export(prec)
+export(corr)
+# export(meta_varcov)
+export(modelsearch)
 
 # lvm models:
 export(lvm)
@@ -20,6 +25,8 @@ export(rnm)
 export(lrnm)
 export(bifactor)
 export(latentgrowth)
+
+export(getVCOV)
 
 # VAR models:
 export(var1)
@@ -88,7 +95,7 @@ exportMethods("show", "resid", "residuals")
 
 
 ### Imports ###
-importFrom(lavaan, lavCor, lavInspect)
+# importFrom(lavaan, lavCor, lavInspect)
 import(dplyr)
 importFrom(abind, abind)
 importFrom(matrixcalc,duplication.matrix,elimination.matrix,commutation.matrix)

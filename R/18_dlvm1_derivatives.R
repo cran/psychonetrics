@@ -182,6 +182,7 @@ d_sigmak_sigma_zeta_between_dlvm1 <- function(lambda,D_eta,...){
 
 # Full jacobian of phi (distribution parameters) with respect to theta (model parameters) for a group
 d_phi_theta_dlvm1_group <- function(within_latent,within_residual,between_latent,between_residual,...){
+
   # Extract from dots things I need:
   dots <- list(...)
   design <- dots$design
@@ -213,7 +214,7 @@ d_phi_theta_dlvm1_group <- function(within_latent,within_residual,between_latent
     nVar^2 * (nTime - 1) # lagged variances
   
   # total number of elements:
-  nelement <- nVar + # intercepts in tau
+  nelement <- nVar + # intercepts in nu
     nLat + # Latent means
     nVar * nLat + # Factor loadings
     nLat * (nLat+1) / 2 + # within factor variances
@@ -238,8 +239,8 @@ d_phi_theta_dlvm1_group <- function(within_latent,within_residual,between_latent
   }
   
   # Indices model:
-  tau_inds <- seq_len(nVar)
-  mu_eta_inds <- max(tau_inds) + seq_len(nLat)
+  nu_inds <- seq_len(nVar)
+  mu_eta_inds <- max(nu_inds) + seq_len(nLat)
   lambda_inds <- max(mu_eta_inds) + seq_len(nVar * nLat)
   
   # lambda_inds <- max(mu_eta_inds) + seq_len(nVar * nLat)
@@ -311,7 +312,7 @@ d_phi_theta_dlvm1_group <- function(within_latent,within_residual,between_latent
  
   # message("Starting...")
   # fill intercept part:
-  Jac[meanInds,tau_inds] <- Diagonal(nVar)
+  Jac[meanInds,nu_inds] <- Diagonal(nVar)
   
   # Fill latent mean part:
   Jac[meanInds,mu_eta_inds] <- d_mu_mu_eta_dlvm1( ...)

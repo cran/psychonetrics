@@ -9,7 +9,10 @@ freepar <- function(
   verbose = TRUE,
   log = TRUE,
   runmodel = FALSE,
+  startEPC = TRUE,
   ...){
+  
+  
 
   if (missing(matrix)){
     stop("'matrix' argument may not be missing")
@@ -68,10 +71,24 @@ freepar <- function(
   if (!missing(start)){
     x@parameters$est[whichFree] <- start  
   } else {
-    # Set to EPC:
-    x@parameters$est[whichFree][!is.na(x@parameters$epc[whichFree])] <- x@parameters$epc[whichFree][!is.na(x@parameters$epc[whichFree])] 
-    
+    expected <-  x@parameters$est[whichFree][!is.na(x@parameters$epc[whichFree])]      +  x@parameters$epc[whichFree][!is.na(x@parameters$epc[whichFree])]    
+    if (startEPC){
+      # Set to EPC:
+      x@parameters$est[whichFree][!is.na(x@parameters$epc[whichFree])] <-   expected
+    } else {
+      # Set to EPC:
+      x@parameters$est[whichFree][!is.na(x@parameters$epc[whichFree])] <- 0.0001*sign(expected)
+    }
   }
+  
+  # Adjust start values in the whole matrix?
+  if (!startEPC){
+    inds <- x@parameters$matrix == x@parameters$matrix[whichFree] & !x@parameters$fixed & !x@parameters$identified
+    x@parameters$est[inds] <- 
+      0.0001*sign(x@parameters$est[inds])
+  }
+
+  
   # x@parameters$std[whichFree] <- NA
   x@parameters$par[whichFree] <- curMax + seq_len(length(whichFree))
   # x@parameters$se[whichFree] <- NA

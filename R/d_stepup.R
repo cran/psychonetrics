@@ -11,7 +11,8 @@ stepup <- function(
   verbose = TRUE,
   checkinformation = TRUE,
   singularinformation = c("tryfix","skip","continue","stop"), # tryfix = try to fix by adjusting starting values (once), skip = go to next parameter, continue = continue search, stop = stop and return current and previous model
-  # maxtry = 0,
+  startEPC = TRUE,
+    # maxtry = 0,
   ... # Fit arguments
 ){
   maxtry <- 1
@@ -36,6 +37,23 @@ stepup <- function(
       } else if (x@submodel == "cov"){
         matrices <- "sigma"
       } 
+    } else if (x@model == "meta_varcov"){
+      
+      matrices <- character(0)
+      if (x@types$y == "ggm"){
+        matrices <- c(matrices,"omega_y")
+      } else if (x@types$y == "prec"){
+        matrices <- c(matrices,"kappa_y") 
+      } 
+      
+      # Random effects:
+      if (x@types$randomEffects == "ggm"){
+        matrices <- c(matrices,"omega_randomEffects")
+      } else if (x@types$randomEffects == "prec"){
+        matrices <- c(matrices,"kappa_randomEffects") 
+      } 
+            
+      
     } else if (x@model == "lvm"){
       
       # Only add GGM structures to search:
@@ -145,7 +163,7 @@ stepup <- function(
         if (x@parameters$matrix[best] %in% x@equal){
           x <- freepar(x, matrix = x@parameters$matrix[best],row = x@parameters$row[best],
                        col = x@parameters$col[best], 
-                       verbose = FALSE, log = FALSE)
+                       verbose = FALSE, log = FALSE, startEPC=startEPC)
           x <- groupequal(x, matrix = x@parameters$matrix[best],row = x@parameters$row[best],
                           col = x@parameters$col[best],verbose = FALSE, log = FALSE)
           
@@ -155,7 +173,7 @@ stepup <- function(
         } else {
           x <- freepar(x, matrix = x@parameters$matrix[best],row = x@parameters$row[best],
                        col = x@parameters$col[best], group = x@parameters$group_id[best],
-                       verbose = FALSE, log = FALSE)
+                       verbose = FALSE, log = FALSE, startEPC=startEPC)
           
           if (verbose){
             if (nrow(x@sample@groups) == 1){
@@ -187,7 +205,7 @@ stepup <- function(
           
           # Check information:
           if (checkinformation){
-            if (any(eigen(newx@information)$values < 0)){
+            if (any(eigen(newx@information)$values < -sqrt(.Machine$double.eps))){
               # if (curtry < maxtry){
               #   if (verbose){
               #     message(paste("Model may not be identified, adjusting start values and trying again."))
@@ -206,7 +224,8 @@ stepup <- function(
               
               if (singularinformation == "tryfix"){
                 if (triedfixing){
-                  stop("Could not repair identification issue. Aborting search.")
+                  message("Could not repair identification issue. Aborting search and returning previous model.")
+                  return(oldMod)
                 }
                 
                 triedfixing <- TRUE
@@ -214,7 +233,7 @@ stepup <- function(
                 if (verbose){
                   message("Model may not be identified. Adjusting starting values and trying again")
                 }
-                x <- emergencystart(x)
+                x <- runmodel(emergencystart(x))
                 
               } else if (singularinformation == "skip"){
                 if (verbose){
@@ -246,6 +265,17 @@ stepup <- function(
             break
           }
         }
+        
+        # Check if fit actually improved:
+        compare <- compare(old = oldMod, new = x)
+        if (!compare$p_value[2] < alpha){
+          if (verbose){
+            message(paste("Model did not improve at given alpha, returning previous model."))
+          }
+          x <- oldMod
+          break
+        }
+        
         # Check criterion:
         if (criterion != "none"){
           if (!criterion %in% names(oldMod@fitmeasures)){
@@ -295,7 +325,7 @@ stepup <- function(
           newx <- x %>% runmodel(...,log=FALSE) # %>% prune(alpha = alpha, adjust = greedyadjust)
           
           if (checkinformation){
-            if (any(eigen(x@information)$values < 0)){
+            if (any(eigen(x@information)$values < -sqrt(.Machine$double.eps))){
               if (curtry < maxtry){
                 if (verbose){
                   message(paste("Model may not be identified, adjusting start values and trying again."))
@@ -320,6 +350,17 @@ stepup <- function(
           
         }
         
+        # Check if fit actually improved:
+        compare <- compare(old = oldMod, new = x)
+        if (!compare$p_value[2] < alpha){
+          if (verbose){
+            message(paste("Model did not improve at given alpha, returning previous model."))
+          }
+          x <- oldMod
+          break
+        }
+      
+      
         # Check criterion:
         if (criterion != "none"){
           if (!criterion %in% names(oldMod@fitmeasures)){

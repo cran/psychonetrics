@@ -2,7 +2,7 @@
 psychonetrics_fitfunction <- function(x, model){
   # What estimator to use:
   estimator <- model@estimator
-  
+
   # Obtain estimator:
   estFun <- switch(
     estimator,
@@ -12,7 +12,7 @@ psychonetrics_fitfunction <- function(x, model){
     "WLS" = ULSestimator,
     "FIML" = fimlEstimator
   )
-  
+
   # Run and return:
   estFun(x, model)
 }

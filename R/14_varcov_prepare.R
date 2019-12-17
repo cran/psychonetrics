@@ -22,6 +22,7 @@ prepare_varcov <- function(x, model){
   S <- model@sample@covs
   means <- model@sample@means
   nVar <- nrow(model@sample@variables)
+  thresholds <- model@sample@thresholds
   
   # Extra mats:
   mMat <- list(
@@ -34,8 +35,15 @@ prepare_varcov <- function(x, model){
     groupModels[[g]] <- c(imp[[g]], mMat, model@extramatrices, model@types) # FIXME: This will lead to extra matrices to be stored?
     groupModels[[g]]$S <- S[[g]]
     groupModels[[g]]$means <- means[[g]]
-  }
+    groupModels[[g]]$corinput <- model@sample@corinput
+    groupModels[[g]]$meanstructure <- model@meanstructure
   
+    if (length(thresholds) > 0){
+      groupModels[[g]]$thresholds <- thresholds[[g]]      
+    }
+
+  }
+
   # Return
   return(list(
     nPerGroup = nPerGroup,

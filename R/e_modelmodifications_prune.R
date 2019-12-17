@@ -19,9 +19,9 @@ prune <- function(
   nCores <- 1
   bootstrap <- FALSE
   adjust <- match.arg(adjust)
-  # If not computed, nothing to do:
+  # If not run, run model:
   if (!x@computed){
-    stop("Model must have been computed first.")
+    x <- x %>% runmodel(..., verbose = verbose)
   }
   
   if (bootstrap && all(is.na(x@parameters$boot_p))){
@@ -73,6 +73,23 @@ prune <- function(
       } else if (x@submodel == "cov"){
         matrices <- "sigma"
       } 
+    }  else if (x@model == "meta_varcov"){
+      
+      matrices <- character(0)
+      if (x@types$y == "ggm"){
+        matrices <- c(matrices,"omega_y")
+      } else if (x@types$y == "prec"){
+        matrices <- c(matrices,"kappa_y") 
+      } 
+      
+      # Random effects:
+      if (x@types$randomEffects == "ggm"){
+        matrices <- c(matrices,"omega_randomEffects")
+      } else if (x@types$randomEffects == "prec"){
+        matrices <- c(matrices,"kappa_randomEffects") 
+      } 
+      
+      
     }  else if (x@model == "lvm"){
       
       # Only add GGM structures to search:
@@ -166,7 +183,7 @@ prune <- function(
   
   # Number of tests:
   nTest <- length(unique(x@parameters$par[whichTest]))
-
+  
   # If no tests, break:
   if (nTest == 0){
     return(x)
@@ -198,7 +215,7 @@ prune <- function(
   
   
   curPars <- max(x@parameters$par)
-
+  
   # Set computed:
   x@computed <- FALSE
   
@@ -218,7 +235,7 @@ prune <- function(
     startreduce * x@parameters$est[x@parameters$matrix %in% matrices & !x@parameters$fixed & !x@parameters$identified & x@parameters$est != 0] 
   
   x@parameters <- clearpars(x@parameters,nonsig)
-
+  
   x@parameters   <- parRelabel(x@parameters)
   
   # Identify:
@@ -236,15 +253,17 @@ prune <- function(
     # x <- addLog(x, paste("Pruned all parameters in matrices ",paste0(matrices,collapse=", ")," at alpha = ",alpha_adjust))
     x <- addLog(x, paste("Pruned all parameters in matrices ",paste0(matrices,collapse=", ")," at alpha = ",alpha,ifelse(adjust=="none","",paste0(" (adjusted: ",adjust,")"))) )
   }
-
+  
   # Rerun if needed:
   if (runmodel){
+    xOld <- x
     suppressWarnings(x <- x %>% runmodel(verbose=verbose,...))
-  }
-  
-  # If not identified, try with emergency start:
-  if (any(eigen(x@information)$values < -sqrt(.Machine$double.eps))){
-    x <- emergencystart(x) %>% runmodel(verbose=verbose,...)
+    
+    # If not identified, try with emergency start:
+    if (any(eigen(x@information)$values < -sqrt(.Machine$double.eps))){
+      # cat("EMERGENCYSTART")
+      x <- emergencystart(xOld) %>% runmodel(verbose=verbose,...)
+    }
   }
   
   # Recurse if needed:
@@ -263,6 +282,6 @@ prune <- function(
     )
   }
   
-
+  
   x
 }

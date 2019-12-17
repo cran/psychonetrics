@@ -15,6 +15,20 @@ runmodel <- function(
   analyticFisher = TRUE
   # inverseHessian = TRUE
 ){
+  # first check if there are any free parameters:
+  if (all(x@parameters$fixed)){
+    x@computed <- TRUE
+    # Add fit:
+    if (addfit){
+      x <- addfit(x)
+    }
+    # FIXME: fis this Add MIs:
+    # if (addMIs){
+    #   x <- addMIs(x,analyticFisher=analyticFisher) 
+    # }
+    return(x)
+  }
+  
   optimizer <- x@optimizer
   # Default:
   if (optimizer == "default"){
@@ -325,7 +339,7 @@ runmodel <- function(
   }
   # Add MIs:
   if (addMIs){
-    x <- addMIs(x,analyticFisher=analyticFisher) 
+    x <- addMIs(x,analyticFisher=analyticFisher, verbose = verbose) 
   }
   # Add SEs:
   if (addSEs){
