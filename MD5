@@ -1,6 +1,6 @@
-f42e8fedc42226d86eddfe44e31f080c *DESCRIPTION
+54e9fae75790dc9da1521547edd6749a *DESCRIPTION
 c6622c86c9095e7d4ce8b84003dcd696 *NAMESPACE
-d49f4dc606065ff8bd3a54ad37d6d066 *NEWS
+194088133466c78621a54e27cb7c5276 *NEWS
 8bdeac2962f8aeec170f16ec77701664 *R/00_codeOrganization.R
 23cbf9e2c44d1fc02a92c00e7e0d9d9d *R/00_steps_to_implement_estimator.R
 ea006fe7d713e25811defffbcf735c60 *R/00_steps_to_implement_model.R
@@ -143,7 +143,7 @@ da48cc323687a16ab00c7bd9f3fb6759 *R/f_convenience_printMethod.R
 f6cebf8da969167611240c80872c2723 *R/f_convenience_residuals.R
 c203c68dd6e3b9e9b9ccf2b906469c8d *R/g_simulations_replicator.R
 bff4bfa7e89d6f952f3a703068f17883 *R/h_modelsearch.R
-dd014fe63872a884ff3af01deb830ec6 *build/partial.rdb
+5e2f2e852af23fe5669c11ac364361e6 *build/partial.rdb
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
 6f820b5fe0e2d6ef55834d0f8098f844 *man/MIs.Rd
 1c8ae8b47e59e7f0c668ab66fbeeed1f *man/StarWars.Rd
@@ -181,7 +181,7 @@ d7de9619745df59bf4e1ed1f4f4477ae *src/06_WLS_Wmat.cpp
 2f8a2429a122258e608c5ac901f75ca8 *src/07_FIMLestimator_expected_hessian_gauss_cppversion.cpp
 44f7e18ec6fdaafe750aebe8332f359e *src/07_FIMLestimator_fitfunction_cppversion.cpp
 c961866094bcc6dc8bd2be7adedbcc5a *src/07_FIMLestimator_jacobian_gauss.cpp
-986c94268c6ca702881814aee6c255bf *src/10_ordinal_covPrepare.cpp
+0f3acfbc5741e7b67b529df31271c9fe *src/10_ordinal_covPrepare.cpp
 78675875c6541cb1a453227726857b01 *src/10_ordinal_cppFuns.cpp
 c7e1bc71f6db617c3e345e5fb5cfc3db *src/10_ordinal_cppFuns.h
 f808458fe232471d3c8eb11f4d472f0e *src/Makevars

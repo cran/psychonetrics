@@ -1,3 +1,7 @@
+Changes in version 0.4.1:
+  o Small fix for CRAN checks
+
+
 Changes in version 0.4:
   o type = "cor" is now supported in varcov, with rho representing the correlations and SD the diagonal standard deviations matrix.
       o The 'corr' function is now implemented as shorthand for varcov(..., type = "cor")

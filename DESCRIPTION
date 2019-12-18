@@ -1,7 +1,7 @@
 Package: psychonetrics
 Type: Package
 Title: Structural Equation Modeling and Confirmatory Network Analysis
-Version: 0.4
+Version: 0.4.1
 Author: Sacha Epskamp
 Maintainer: Sacha Epskamp <mail@sachaepskamp.com>
 Description: Multi-group (dynamical) structural equation models in combination with confirmatory network models from cross-sectional, time-series and panel data. Allows for confirmatory testing and fit as well as exploratory model search.
@@ -17,6 +17,6 @@ URL: http://psychonetrics.org/
 BugReports: https://github.com/SachaEpskamp/psychonetrics/issues
 StagedInstall: true
 NeedsCompilation: yes
-Packaged: 2019-12-17 12:45:07 UTC; sachaepskamp
+Packaged: 2019-12-17 21:07:16 UTC; ubuntu
 Repository: CRAN
-Date/Publication: 2019-12-17 15:00:05 UTC
+Date/Publication: 2019-12-18 02:10:02 UTC
