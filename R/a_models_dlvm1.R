@@ -63,6 +63,7 @@ dlvm1 <- function(
   covs, # alternative covs (array nvar * nvar * ngroup)
   means, # alternative means (matrix nvar * ngroup)
   nobs, # Alternative if data is missing (length ngroup)
+  covtype = c("choose","ML","UB"),
   missing = "listwise",
   equal = "none", # Can also be any of the matrices
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
@@ -72,6 +73,7 @@ dlvm1 <- function(
   storedata = FALSE,
   sampleStats
 ){
+  covtype <- match.arg(covtype)
   # Check for missing:
   # if (missing(lambda_within)){
   #   stop("'lambda_within' may not be missing")
@@ -123,6 +125,7 @@ dlvm1 <- function(
                                missing  = ifelse(estimator == "FIML","pairwise",missing),
                                fimldata = estimator == "FIML",
                                storedata = storedata,
+                               covtype=covtype,
                                weightsmatrix = ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
                                                       switch(estimator,
                                                         "WLS" = "full",
