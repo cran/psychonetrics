@@ -1,6 +1,6 @@
-e690974e0ea532cbe1b4bf215660dbda *DESCRIPTION
+f01628e55a0c563d245e6e83de4b2db9 *DESCRIPTION
 ed78ac9ae1efbe51a84f51b572be460d *NAMESPACE
-00bcc714d5c8edc268c48bd1cfb93e11 *NEWS
+ffd2f5e7eadc520a02b2532665085c71 *NEWS
 8bdeac2962f8aeec170f16ec77701664 *R/00_codeOrganization.R
 39edb48d7703de9a0e4b8b66485cd068 *R/00_steps_to_implement_distribution.R
 23cbf9e2c44d1fc02a92c00e7e0d9d9d *R/00_steps_to_implement_estimator.R
@@ -44,7 +44,7 @@ f7d5928d0ae72e6cc927e5d21388c64c *R/03_modelformation_matrixSetup_lambda.R
 b0fe0790a25c7df1ce1dcbe99af77c2f *R/03_modelformation_missingpatterns.R
 6210dbd26bd0794eff2850f7c57f397b *R/03_modelformation_missingpatterns_covs.R
 6c592e9984a8c9ad9c34434291b862df *R/03_modelformation_samplestats.R
-4bf6c2c0637ef085de253e6a06b9b3d1 *R/03_modelformation_samplestats_norawts.R
+b59929df279d036c9783540fac5e8a40 *R/03_modelformation_samplestats_norawts.R
 7c297250ded8c8d710c926d354a37f3a *R/03_modelformation_samplestats_rawts.R
 dd9ea5a3383d18de3ba20a6dc306a15d *R/03_modelformation_startvaluesandbounds.R
 91b5e9e8fbc39cb3f45bf5a04ae0ecde *R/03_modelformation_tsData.R
@@ -104,7 +104,7 @@ d2c4807b67d92039444bb2c1d62d3e8f *R/20_meta_varcov_derivatives.R
 5b5906118b751357eedefad9eb61c077 *R/21_Ising_implied.R
 bd6d2ec0ee4692b35ffbfe307ebfbefb *R/21_Ising_prepare.R
 fa9d297d907905ba6dee6095972e97ee *R/RcppExports.R
-7171c4997e81d3c2a6aae619d7732308 *R/a_models_Ising.R
+aeac8e8fc6f302314f10b858a663d3cf *R/a_models_Ising.R
 49d501270df8e5632fcc273d712c2da5 *R/a_models_bifactor.R
 43fdd4d275615c9d14638e09d0183444 *R/a_models_cholesky.R
 88d4252473d46f0d0f26556355697fb2 *R/a_models_corr.R
@@ -158,7 +158,7 @@ ab33411e578c67534eec66438d5b9b59 *R/f_convenience_modelCompare.R
 f6cebf8da969167611240c80872c2723 *R/f_convenience_residuals.R
 c203c68dd6e3b9e9b9ccf2b906469c8d *R/g_simulations_replicator.R
 2bbd6d184a9482917a7f6ef5ba27225a *R/h_modelsearch.R
-ba242008cfa652570d8ad8b6f9abc24d *build/partial.rdb
+08491add09d87f88e4befd0fae2c784b *build/partial.rdb
 3d4c9ad99e997cc27eeffe13347e619d *data/Jonas.RData
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
 c3ade33a61862e80ff84871c1dc1687d *man/Ising.Rd
