@@ -2,8 +2,8 @@
 modelsearch <- function(x,
                         criterion = "bic", # Stop when criterion is no longer improved. Can also be none to ignore
                         matrices, # Matrices to search
-                        prunealpha = 0.001, # Minimum p-value for edges tested to be removed
-                        addalpha = 0.05, # Maximum p-value for edges tested to be added
+                        prunealpha = 0.01, # Minimum p-value for edges tested to be removed
+                        addalpha = 0.01, # Maximum p-value for edges tested to be added
                         verbose = TRUE,
                         ...
 ){
@@ -92,8 +92,12 @@ modelsearch <- function(x,
         matrices <- c(matrices,"omega_mu")
       }
       
-    } else if (x@model == "dlvm1"){
-      matrices <- c("beta")
+    } else if (x@model %in% c("ml_lvm","dlvm1")){
+      if (x@model == "dlvm1") {
+        matrices <- c("beta")
+      } else {
+        matrices <- character(0)
+      }
       if (x@types$within_latent == "prec"){
         matrices <- c(matrices,"kappa_zeta_within")
       } else if (x@types$within_latent == "ggm"){
@@ -154,7 +158,7 @@ modelsearch <- function(x,
       (!x@parameters$fixed[ind]  & x@parameters$p[ind] > prunealpha) |
         
         # Significant edges to add?
-        (x@parameters$fixed[ind]  & x@parameters[[pmi]][ind] < prunealpha)
+        (x@parameters$fixed[ind]  & x@parameters[[pmi]][ind] < addalpha)
       ]
     
  

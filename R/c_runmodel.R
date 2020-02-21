@@ -38,7 +38,7 @@ runmodel <- function(
     } else {
       optimizer <- "ucminf"
     }
-
+    
   }
   
   
@@ -49,8 +49,22 @@ runmodel <- function(
   }
   
   
+  if (!is.null(x@baseline_saturated$baseline)){
+    # Check if model happens to be baseline model:
+    isBaseline <- identical(x@baseline_saturated$baseline@parameters$par, x@parameters$par)    
+  } else {
+    isBaseline <- FALSE
+  }
+  
+  if (!is.null(x@baseline_saturated$saturated)){
+    # Check if model happens to be saturated model:
+    isSaturated <- identical(x@baseline_saturated$saturated@parameters$par, x@parameters$par)
+  } else {
+    isSaturated <- FALSE
+  }
+  
   # Evaluate baseline model:
-  if (!is.null(x@baseline_saturated$baseline) && !x@baseline_saturated$baseline@computed){
+  if (!isBaseline && !is.null(x@baseline_saturated$baseline) && !x@baseline_saturated$baseline@computed){
     if (verbose) message("Estimating baseline model...")
     # Run:
     
@@ -59,7 +73,7 @@ runmodel <- function(
   
   # Evaluate saturated model:
   
-  if (!is.null(x@baseline_saturated$saturated) && !x@baseline_saturated$saturated@computed){
+  if (!isSaturated && !is.null(x@baseline_saturated$saturated) && !x@baseline_saturated$saturated@computed){
     if (verbose) message("Estimating saturated model...")
     # Run:
     x@baseline_saturated$saturated <- runmodel(x@baseline_saturated$saturated, addfit = FALSE, addMIs = FALSE, verbose = FALSE,addSEs=FALSE, addInformation = FALSE, analyticFisher = FALSE)
@@ -151,7 +165,7 @@ runmodel <- function(
   
   # Add bounds:
   if (optimizer %in% c("nlminb","L-BFGS-B","lbfgs")){
-
+    
     optim.control$lower <- lower
     optim.control$upper <- upper
   }
@@ -162,22 +176,22 @@ runmodel <- function(
   if (optimizer == "nlminb"){
     if (is.null(optim.control$control)){
       optim.control$control<- list(eval.max=20000L,
-                                     iter.max=10000L,
-                                     trace=0L,
-                                     #abs.tol=1e-20, ### important!! fx never negative
-                                     abs.tol=(.Machine$double.eps * 10),
-                                     # rel.tol=1e-10,
-                                     rel.tol=1e-5,
-                                     #step.min=2.2e-14, # in =< 0.5-12
-                                     step.min=1.0, # 1.0 in < 0.5-21
-                                     step.max=1.0,
-                                     x.tol=1.5e-8,
-                                     xf.tol=2.2e-14)
+                                   iter.max=10000L,
+                                   trace=0L,
+                                   #abs.tol=1e-20, ### important!! fx never negative
+                                   abs.tol=(.Machine$double.eps * 10),
+                                   # rel.tol=1e-10,
+                                   rel.tol=1e-5,
+                                   #step.min=2.2e-14, # in =< 0.5-12
+                                   step.min=1.0, # 1.0 in < 0.5-21
+                                   step.max=1.0,
+                                   x.tol=1.5e-8,
+                                   xf.tol=2.2e-14)
     }
   }
- 
   
-    repeat{
+  
+  repeat{
     tryres <- try({
       optim.out <- do.call(optimr,optim.control)
     }, silent = TRUE)    
@@ -201,7 +215,7 @@ runmodel <- function(
       }
     }
   }
-
+  
   # optim.out <- do.call(optimr,optim.control)
   
   # Update model:
@@ -331,7 +345,8 @@ runmodel <- function(
       warning("Information matrix is not positive semi-definite. Model might not be identified.")
     }    
   }
-
+  
+  
   # }
   # Add fit:
   if (addfit){
@@ -344,6 +359,14 @@ runmodel <- function(
   # Add SEs:
   if (addSEs){
     x <- addSEs(x)
+  }
+  
+  # Add baseline or saturated if needed:
+  if (isBaseline){
+    x@baseline_saturated$baseline <- x
+  }
+  if (isSaturated){
+    x@baseline_saturated$saturated <- x
   }
   
   if (log){

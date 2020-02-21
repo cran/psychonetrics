@@ -1,3 +1,14 @@
+Changes in version 0.6:
+  o The 'dlvm1' model family now also returns the implied latent variance-covarriance matrix as 'sigma_eta_within'
+      o The latent lag-1 matrix is also returned as 'sigma_eta_within_lag1'
+  o The dlvm1 model family now no longer requires a 'lambda' matrix to be specified (will default to a panelvar model)
+  o Most model families now support the 'standardized' argument, which can be set to 'z' for z-scores (helps convergence) or 'quantile' for a semiparametric transformation
+  o Added the ml_lvm family for two-level random intercept latent variable models
+  o Added the simplestructure function to easily make a lambda matrix
+  o addalpha in modelsearch now works as expected
+  o addalpha and prunealpha now default to 0.01 in 'modelsearch'
+  o recursive now defaults to FALSE in 'prune'
+
 Changes in version 0.5.1:
   o Fixed a bug with responses being missing when summary statistics are used in Ising()
   o Fixed a bug with covtype sometimes being set to UB when corinput = TRUE

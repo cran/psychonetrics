@@ -24,7 +24,8 @@ lvm(data, lambda, latent = c("cov", "chol", "prec",
                     missing = "listwise", equal = "none",
                     baseline_saturated = TRUE, estimator = "ML", optimizer
                     = "default", storedata = FALSE, WLS.V, covtype =
-                    c("choose", "ML", "UB"), sampleStats)
+                    c("choose", "ML", "UB"), standardize = c("none", "z",
+                    "quantile"), sampleStats,   verbose=TRUE)
 
 lnm(\dots)
 rnm(\dots)
@@ -125,6 +126,9 @@ The optimizer to be used. Usually either \code{"nlminb"} (with box constrains) o
   \item{storedata}{
 Logical, should the raw data be stored? Needed for bootstrapping (see \code{\link{bootstrap}}).
 }
+  \item{verbose}{
+Logical, should progress be printed to the console?
+}
   \item{WLS.V}{
 The weights matrix used in WLS estimation (experimental)
 }
@@ -133,6 +137,9 @@ An optional sample statistics object. Mostly used internally.
 }
 \item{covtype}{
   If 'covs' is used, this is the type of covariance (maximum likelihood or unbiased) the input covariance matrix represents. Set to \code{"ML"} for maximum likelihood estimates (denominator n) and \code{"UB"} to unbiased estimates (denominator n-1). The default will try to find the type used, by investigating which is most likely to result from integer valued datasets.
+}
+  \item{standardize}{
+Which standardization method should be used? \code{"none"} (default) for no standardization, \code{"z"} for z-scores, and \code{"quantile"} for a non-parametric transformation to the quantiles of the marginal standard normal distribution.
 }
 \item{\dots}{
 Arguments sent to \code{varcov}
@@ -377,10 +384,10 @@ rnm <- rnm \%>\% stepup
 # matrix, with the "covs" and "nobs" arguments.
 # The following fits a baseline GGM network with no edges:
 S <- (nrow(StarWars) - 1)/ (nrow(StarWars)) * cov(StarWars[,1:10])
-ggmmod <- ggm(covs = S, nobs = nrow(StarWars), omega = "empty")
+ggmmod <- ggm(covs = S, nobs = nrow(StarWars))
 
 # Run model with stepup search and pruning:
-ggmmod <- ggmmod \%>\% stepup(greedy=TRUE) \%>\% prune
+ggmmod <- ggmmod\%>\% prune  \%>\% modelsearch
 
 # Fit measures:
 ggmmod \%>\% fit

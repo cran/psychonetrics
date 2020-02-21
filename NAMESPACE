@@ -3,10 +3,35 @@ useDynLib(psychonetrics, .registration = TRUE)
 
 # importFrom(metaSEM, asyCov)
 
+export(simplestructure)
+
+# Multi-level models:
+export(ml_tsdlvm1)
+export(ml_ts_lvgvar)
+export(ml_lvm)
+export(ml_lnm)
+export(ml_rnm)
+export(ml_lrnm)
+
+export(meta_varcov)
+
+# Ergodic:
+export(esa)
+export(esa_manual)
+import(ggplot2)
+# import(tidyr)
+importFrom(tidyr, gather, pivot_wider)
+
+S3method(plot, esa)
+S3method(plot, esa_manual)
+
+S3method(print, esa)
+S3method(print, esa_manual)
+
 import(IsingSampler)
 
 # Crayon:
-import(crayon)
+# import(crayon)
 
 ### Exports ###
 # exportPattern("^[[:alpha:]]+")
@@ -132,3 +157,5 @@ import(magrittr)
 
   importFrom("stats", "na.omit", "p.adjust", "rnorm", "sd")
      importFrom("utils", "setTxtProgressBar", "txtProgressBar")
+     
+     importFrom("stats", "qnorm")
