@@ -22,15 +22,16 @@ varcov <- function(
   equal = "none", # Can also be any of the matrices
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
   estimator = "default",
-  optimizer = "default",
+  optimizer,
   storedata = FALSE,
-  WLS.V,
+  WLS.W,
   sampleStats, # Leave to missing
   meanstructure, # Defaults to TRUE if data is used or means is used, FALSE otherwie
   corinput, # Defaults to TRUE if the input is detected to consist of correlation matrix/matrices, FALSE otherwise
-  verbose = TRUE,
+  verbose = FALSE,
   covtype = c("choose","ML","UB"),
-  standardize = c("none","z","quantile")
+  standardize = c("none","z","quantile"),
+  fullFIML=FALSE
 ){
   rawts = FALSE
   if (rawts){
@@ -78,7 +79,7 @@ varcov <- function(
   }
   
   # Check FIML:
-  if (!meanstructure && estimator == "FIML"){
+  if (!missing(data) && !meanstructure && estimator == "FIML"){
     stop("meanstructure = FALSE is not yet supported for 'FIML' estimator")
   }
   
@@ -86,8 +87,8 @@ varcov <- function(
   # Obtain sample stats:
   if (missing(sampleStats)){
     # WLS weights:
-    if (missing(WLS.V)){
-      WLS.V <- ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
+    if (missing(WLS.W)){
+      WLS.W <- ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
                       switch(estimator,
                              "WLS" = "full",
                              "ULS" = "identity",
@@ -106,12 +107,13 @@ varcov <- function(
                                rawts = rawts,
                                fimldata = estimator == "FIML",
                                storedata = storedata,
-                               weightsmatrix = WLS.V,
+                               weightsmatrix = WLS.W,
                                meanstructure = meanstructure,
                                corinput = corinput,
                                covtype=covtype,
                                verbose=verbose,
-                               standardize=standardize)
+                               standardize=standardize,
+                               fullFIML=fullFIML)
   }
  
   # Overwrite corinput:
@@ -123,9 +125,9 @@ varcov <- function(
   # Generate model object:
   model <- generate_psychonetrics(model = "varcov",sample = sampleStats,computed = FALSE, 
                                   equal = equal,
-                                  optimizer = optimizer, estimator = estimator, distribution = "Gaussian",
+                                  optimizer =  "nlminb", estimator = estimator, distribution = "Gaussian",
                                   rawts = rawts, types = list(y = type),
-                                  submodel = type, meanstructure = meanstructure)
+                                  submodel = type, meanstructure = meanstructure, verbose=verbose)
   
   # Number of groups:
   nGroup <- nrow(model@sample@groups)
@@ -210,7 +212,8 @@ varcov <- function(
                                              nNode = nNode, 
                                              nGroup = nGroup, 
                                              labels = sampleStats@variables$label,
-                                             equal = "delta" %in% equal, sampletable = sampleStats)       
+                                             equal = "delta" %in% equal, sampletable = sampleStats,
+                                             omegaStart =  modMatrices$omega$start)       
     }
     
   } else if (type == "prec"){
@@ -262,21 +265,22 @@ varcov <- function(
     model@extramatrices <- list(
       D = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
       L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
-      In = Diagonal(nNode) # Identity of dim n
+      In = as(diag(nNode),"dgCMatrix") # Identity of dim n
     )
   } else if (type == "chol"){
     model@extramatrices <- list(
       D = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
       L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
-      In = Diagonal(nNode), # Identity of dim n
-      C = as(lavaan::lav_matrix_commutation(nNode,nNode),"sparseMatrix")
+      In = as(diag(nNode),"dgCMatrix"), # Identity of dim n
+      # C = as(lavaan::lav_matrix_commutation(nNode,nNode),"sparseMatrix")
+      C = as(lavaan::lav_matrix_commutation(nNode,nNode),"dgCMatrix")
     )
   } else if (type == "ggm" || type == "cor"){
     model@extramatrices <- list(
       D = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
       L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
       Dstar = psychonetrics::duplicationMatrix(nNode,diag = FALSE), # Strict duplicaton matrix
-      In = Diagonal(nNode), # Identity of dim n
+      In = as(diag(nNode),"dgCMatrix"), # Identity of dim n
       A = psychonetrics::diagonalizationMatrix(nNode)
     )
   }
@@ -284,7 +288,6 @@ varcov <- function(
   
   # Form the model matrices
   model@modelmatrices <- formModelMatrices(model)
-  
   
   ### Baseline model ###
   if (baseline_saturated){
@@ -312,7 +315,7 @@ varcov <- function(
     } else {
       model@baseline_saturated$baseline <- varcov(data,
                                                   type = "cor",
-                                                  lowertri = "empty",
+                                                  rho = "empty",
                                                   vars = vars,
                                                   groups = groups,
                                                   covs = covs,
@@ -376,6 +379,13 @@ varcov <- function(
       model@baseline_saturated$saturated@objective <- psychonetrics_fitfunction(parVector(model@baseline_saturated$saturated),model@baseline_saturated$saturated)      
     }
   }
+  
+  if (missing(optimizer)){
+    model <- setoptimizer(model, "default")
+  } else {
+    model <- setoptimizer(model, optimizer)
+  }
+
   
   # Return model:
   return(model)

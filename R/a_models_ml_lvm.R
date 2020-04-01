@@ -64,12 +64,13 @@ ml_lvm <- function(
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
   # fitfunctions, # Leave empty
   estimator = c("FIML","MUML"),
-  optimizer = "default",
+  optimizer,
   storedata = FALSE,
-  verbose = TRUE,
+  verbose = FALSE,
   standardize = c("none","z","quantile"),
   sampleStats
 ){
+
   # CRAN Check workarounds (sorry):
   . <- NULL
   variable <- NULL
@@ -226,13 +227,14 @@ ml_lvm <- function(
                                vars = allVars, 
                                groups = groups,
                                fimldata = estimator == "FIML",
-                               storedata = storedata)
+                               storedata = storedata,
+                               verbose=verbose)
   }
   
   
   
   # designPattern matrix:
-  designPattern <- as(1*(!is.na(design)),"sparseMatrix")
+  designPattern <- as(1*(!is.na(design)),"matrix")
   
   # cases per var:
   casesPerVar <- as.vector(designPattern * row(designPattern))
@@ -279,8 +281,8 @@ ml_lvm <- function(
                                   ),
                                   sample = sampleStats,computed = FALSE, 
                                   equal = equal,
-                                  optimizer = optimizer, estimator = estimator, distribution = "Gaussian",
-                                  identification=identification)
+                                  optimizer =  "nlminb", estimator = estimator, distribution = "Gaussian",
+                                  identification=identification, verbose=verbose)
   
   # Number of groups:
   nGroup <- nrow(model@sample@groups)
@@ -407,8 +409,8 @@ ml_lvm <- function(
     # Dstar_between = psychonetrics::duplicationMatrix(nLat,diag = FALSE),  
     
     # Identity matrices:
-    I_y = Diagonal(nVar),
-    I_eta = Diagonal(nLat),
+    I_y = as(diag(nVar),"dgCMatrix"),
+    I_eta = as(diag(nLat),"dgCMatrix"),
     # I_within = Diagonal(nLat),
     # I_between = Diagonal(nLat),
     
@@ -419,9 +421,9 @@ ml_lvm <- function(
     # A_between = psychonetrics::diagonalizationMatrix(nLat),
     
     # Commutation matrices:
-    C_y_y = as(lavaan::lav_matrix_commutation(nVar, nVar),"sparseMatrix"),
-    C_y_eta = as(lavaan::lav_matrix_commutation(nVar, nLat),"sparseMatrix"),
-    C_eta_eta = as(lavaan::lav_matrix_commutation(nLat, nLat),"sparseMatrix"),
+    C_y_y = as(lavaan::lav_matrix_commutation(nVar, nVar),"dgCMatrix"),
+    C_y_eta = as(lavaan::lav_matrix_commutation(nVar, nLat),"dgCMatrix"),
+    C_eta_eta = as(lavaan::lav_matrix_commutation(nLat, nLat),"dgCMatrix"),
     
     # 
     # C_y_within = as(lavaan::lav_matrix_commutation(nVar, nLat),"sparseMatrix"),
@@ -477,6 +479,8 @@ ml_lvm <- function(
   model@extramatrices$P <- sparseMatrix(
     i = distVecrawts, j = distVec, dims = c(nTotal, totElements)
   )
+  
+  model@extramatrices$P <- as(model@extramatrices$P, "dgCMatrix")
   # model@extramatrices$P <- sparseMatrix(j=seq_along(inds),i=order(inds))
   
   
@@ -574,6 +578,12 @@ ml_lvm <- function(
   # Identify model:
   if (identify){
     model <- identify(model)
+  }
+  
+  if (missing(optimizer)){
+    model <- setoptimizer(model, "default")
+  } else {
+    model <- setoptimizer(model, optimizer)
   }
   
   # Return model:

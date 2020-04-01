@@ -30,11 +30,12 @@ var1 <- function(
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
   # fitfunctions, # Leave empty
   estimator = "ML",
-  optimizer = "default", # ucminf
+  optimizer,
   storedata = FALSE,
   covtype = c("choose","ML","UB"),
   standardize = c("none","z","quantile"),
-  sampleStats
+  sampleStats,
+  verbose=FALSE
 ){
   contemporaneous <- match.arg(contemporaneous)
   
@@ -76,6 +77,7 @@ var1 <- function(
                                storedata = storedata,
                                covtype=covtype,
                                standardize = standardize,
+                               verbose=verbose,
                                weightsmatrix = ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
                                                       switch(estimator,
                                                         "WLS" = "full",
@@ -105,7 +107,7 @@ var1 <- function(
                                     ),types = list(zeta = contemporaneous),
                                   sample = sampleStats,computed = FALSE, 
                                   equal = equal,
-                                  optimizer = optimizer, estimator = estimator, distribution = "Gaussian")
+                                  optimizer =  "nlminb", estimator = estimator, distribution = "Gaussian",verbose=verbose)
   
   # Number of groups:
   nGroup <- nrow(model@sample@groups)
@@ -161,6 +163,7 @@ var1 <- function(
   contCovEst <- lapply(1:nGroup, function(g) spectralshift(S0est[[g]] - S1est[[g]] %*% S0inv[[g]] %*% t(S1est[[g]])))
   # contCovEst <- lapply(1:nGroup, function(g) spectralshift(exoCovs[[g]] - t(S1est[[g]]) %*% S0inv[[g]] %*% S1est[[g]]))
   
+
   # Fill in:
   if (contemporaneous == "cov"){
     modMatrices$sigma_zeta <- matrixsetup_sigma(sigma_zeta, name = "sigma_zeta",
@@ -193,7 +196,8 @@ var1 <- function(
                                                 nGroup = nGroup, 
                                                 labels = sampleStats@variables$label[-(1:nNode)],
                                                 equal = "delta_zeta" %in% equal, sampletable = sampleStats,
-                                                onlyStartSign = FALSE) 
+                                                onlyStartSign = FALSE,
+                                                omegaStart =  modMatrices$omega_zeta$start) 
   } else if (contemporaneous == "prec"){
     
     # Add omega matrix:
@@ -204,6 +208,7 @@ var1 <- function(
                                                 labels = sampleStats@variables$label[-(1:nNode)],
                                                 equal = "kappa_zeta" %in% equal, sampletable = sampleStats)
   }
+  
   
   # Generate the full parameter table:
   pars <- do.call(generateAllParameterTables, modMatrices)
@@ -218,10 +223,10 @@ var1 <- function(
     D2 = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
     L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
     Dstar = psychonetrics::duplicationMatrix(nNode,diag = FALSE), # Strict duplicaton matrix
-    In = Diagonal(nNode), # Identity of dim n
-    In2 = Diagonal(nNode), # Identity of dim n^2
+    In = as(diag(nNode),"dgCMatrix"), # Identity of dim n
+    In2 = as(diag(nNode),"dgCMatrix"), # Identity of dim n^2
     A = psychonetrics::diagonalizationMatrix(nNode),
-    C = as(lavaan::lav_matrix_commutation(nNode,nNode),"sparseMatrix")
+    C = as(lavaan::lav_matrix_commutation(nNode,nNode),"dgCMatrix")
     # P=P # Permutation matrix
   )
   
@@ -239,6 +244,8 @@ var1 <- function(
     # P <- bdiag(Diagonal(nNode*2),sparseMatrix(j=seq_along(inds),i=inds))
     model@extramatrices$P <- bdiag(Diagonal(nNode*2),sparseMatrix(j=seq_along(inds),i=order(inds)))
 
+    model@extramatrices$P <- as(model@extramatrices$P, "dgCMatrix")
+    
   
   # Form the model matrices
   model@modelmatrices <- formModelMatrices(model)
@@ -290,6 +297,11 @@ var1 <- function(
     
   }
   
+  if (missing(optimizer)){
+    model <- setoptimizer(model, "default")
+  } else {
+    model <- setoptimizer(model, optimizer)
+  }
   
   # Return model:
   return(model)

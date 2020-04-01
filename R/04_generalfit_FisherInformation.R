@@ -12,9 +12,14 @@ psychonetrics_FisherInformation <- function(model, analytic = TRUE){
   if (!analytic){
     return(numeric_FisherInformation(model))
   }
+
+  # Prepare model:
+  if (model@cpp){
+    prep <- prepareModel_cpp(parVector(model), model) # <- upated!
+  } else {
+    prep <- prepareModel(parVector(model), model)  
+  }
   
-  # Prepare (FIXME: x not needed but I am laxy...)
-  prep <- prepareModel(parVector(model), model)
   
   # # estimator part Jacobian:
   # estimatorJacobian <- switch(
@@ -26,55 +31,118 @@ psychonetrics_FisherInformation <- function(model, analytic = TRUE){
   # estimatorPartJacobian <- estimatorJacobian(prep)
   
   # estimator part expected Hessian:
-  estimatorHessian <- switch(
-    model@estimator,
-    "ML" = switch(model@distribution,
-                  "Gaussian" = expected_hessian_Gaussian,
-                  "Ising" = expected_hessian_Ising
-    ),
-    "ULS" = switch(model@distribution,
-                  "Gaussian" = expected_hessian_ULS_Gaussian
-    ),
-    "WLS" = switch(model@distribution,
-                   "Gaussian" = expected_hessian_ULS_Gaussian
-    ),
-    "DWLS" = switch(model@distribution,
-                   "Gaussian" = expected_hessian_ULS_Gaussian
-    ),
-    "FIML" = switch(model@distribution,
-                   "Gaussian" = expected_hessian_fiml_Gaussian
+  if (model@cpp){
+    
+    estimatorHessian <- switch(
+      model@estimator,
+      "ML" = switch(model@distribution,
+                    "Gaussian" = expected_hessian_Gaussian_cpp, # <- Updated!
+                    "Ising" = expected_hessian_Ising
+      ),
+      "ULS" = switch(model@distribution,
+                     "Gaussian" = expected_hessian_ULS_Gaussian_cpp # <- Updated!
+      ),
+      "WLS" = switch(model@distribution,
+                     "Gaussian" = expected_hessian_ULS_Gaussian_cpp # <- Updated!
+      ),
+      "DWLS" = switch(model@distribution,
+                      "Gaussian" = expected_hessian_ULS_Gaussian_cpp # <- Updated!
+      ),
+      "FIML" = switch(model@distribution,
+                      "Gaussian" = expected_hessian_fiml_Gaussian_cppVersion # <- Updated!
+      )
     )
-  )
-  estimatorPartHessian <- estimatorHessian(prep)
+    
+  } else {
+    estimatorHessian <- switch(
+      model@estimator,
+      "ML" = switch(model@distribution,
+                    "Gaussian" = expected_hessian_Gaussian,
+                    "Ising" = expected_hessian_Ising
+      ),
+      "ULS" = switch(model@distribution,
+                     "Gaussian" = expected_hessian_ULS_Gaussian
+      ),
+      "WLS" = switch(model@distribution,
+                     "Gaussian" = expected_hessian_ULS_Gaussian
+      ),
+      "DWLS" = switch(model@distribution,
+                      "Gaussian" = expected_hessian_ULS_Gaussian
+      ),
+      "FIML" = switch(model@distribution,
+                      "Gaussian" = expected_hessian_fiml_Gaussian
+      )
+    )
+  }
+
+
+
+  estimatorPart <- estimatorHessian(prep)
   
   # model part:
-  modelJacobian <- switch(
-    model@model,
-    # "lnm" = d_phi_theta_lnm,
-    # "ggm" = d_phi_theta_ggm,
-    # "rnm" = d_phi_theta_rnm,
-    # "gvar" =  ifelse(model@rawts,d_phi_theta_gvar_rawts,d_phi_theta_gvar),
-    "varcov" = d_phi_theta_varcov,
-    "lvm" = d_phi_theta_lvm,
-    "var1" = d_phi_theta_var1,
-    # "panelvar1" = d_phi_theta_panelvar1,
-    "dlvm1" = d_phi_theta_dlvm1,
-    "tsdlvm1" = d_phi_theta_tsdlvm1,
-    "meta_varcov" = d_phi_theta_meta_varcov,
-    "Ising" = d_phi_theta_Ising,
-    "ml_lvm" = d_phi_theta_ml_lvm
-    # "cholesky" = d_phi_theta_cholesky
-  )
-  modelPart <- modelJacobian(prep)
+  if (model@cpp){
+    modelJacobian <- switch(
+      model@model,
+      # "lnm" = d_phi_theta_lnm,
+      # "ggm" = d_phi_theta_ggm,
+      # "rnm" = d_phi_theta_rnm,
+      # "gvar" = ifelse(model@rawts,d_phi_theta_gvar_rawts,d_phi_theta_gvar),
+      "varcov" = d_phi_theta_varcov_cpp, # <- updated!
+      "lvm" = d_phi_theta_lvm_cpp, # <- updated!
+      "var1" = d_phi_theta_var1_cpp, # <- updated!
+      # "panelvar1" = d_phi_theta_panelvar1,
+      "dlvm1" = d_phi_theta_dlvm1_cpp, # <- updated!
+      "tsdlvm1" = d_phi_theta_tsdlvm1_cpp, # <- updated!
+      "meta_varcov" = d_phi_theta_meta_varcov_cpp, # <- updated!
+      "Ising" = d_phi_theta_Ising_cpp, # <- updated!
+      "ml_lvm" = d_phi_theta_ml_lvm_cpp # <- updated!
+      # "cholesky" = d_phi_theta_cholesky
+    )    
+  } else {
+    modelJacobian <- switch(
+      model@model,
+      # "lnm" = d_phi_theta_lnm,
+      # "ggm" = d_phi_theta_ggm,
+      # "rnm" = d_phi_theta_rnm,
+      # "gvar" = ifelse(model@rawts,d_phi_theta_gvar_rawts,d_phi_theta_gvar),
+      "varcov" = d_phi_theta_varcov,
+      "lvm" = d_phi_theta_lvm,
+      "var1" = d_phi_theta_var1,
+      # "panelvar1" = d_phi_theta_panelvar1,
+      "dlvm1" = d_phi_theta_dlvm1,
+      "tsdlvm1" = d_phi_theta_tsdlvm1,
+      "meta_varcov" = d_phi_theta_meta_varcov,
+      "Ising" = d_phi_theta_Ising,
+      "ml_lvm" = d_phi_theta_ml_lvm
+      # "cholesky" = d_phi_theta_cholesky
+    )
+  }
+  
+  modelPart <- sparseordense(modelJacobian(prep))
+  
   
   # Manual part:
-  manualPart <- Mmatrix(model@parameters)
-
+  if (model@cpp){
+    manualPart <- Mmatrix_cpp(model@parameters)
+  } else {
+    manualPart <- Mmatrix(model@parameters)  
+  }
   # Compute fisher information and return:
   # Fisher <- 2 * prep$nTotal * t(manualPart) %*% t(modelPart) %*% estimatorPartHessian %*% modelPart %*% manualPart
 
   # Unit information instead:
-  Fisher <- 0.5 * t(manualPart) %*% t(modelPart) %*% estimatorPartHessian %*% modelPart %*% manualPart
+  if (model@cpp){
+   
+    if (is(modelPart, "sparseMatrix")){
+      Fisher <- FisherInformation_inner_cpp_DSS(as.matrix(estimatorPart), modelPart, manualPart)
+    } else {
+      Fisher <- FisherInformation_inner_cpp_DDS(as.matrix(estimatorPart), as.matrix(modelPart), manualPart)
+    }
+    
+  } else {
+    Fisher <- 0.5 * t(manualPart) %*% t(modelPart) %*% estimatorPart %*% modelPart %*% manualPart
+  }
+  
   
   as.matrix(Fisher)
 }

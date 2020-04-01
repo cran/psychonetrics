@@ -1,13 +1,27 @@
 # Implied model for precision. Requires appropriate model matrices:
 implied_ml_lvm <- function(model,all = FALSE){
-  x <- formModelMatrices(model)
-  
+  if (model@cpp){
+    x <- formModelMatrices_cpp(model)
+  } else {
+    x <- formModelMatrices(model)  
+  }
+
   # Implied covariance structures:
-  x <- impliedcovstructures(x, "zeta_within", type = model@types$within_latent, all = all)
-  x <- impliedcovstructures(x, "epsilon_within", type = model@types$within_residual, all = all)
-  x <- impliedcovstructures(x, "zeta_between", type = model@types$between_latent, all = all)
-  x <- impliedcovstructures(x, "epsilon_between", type = model@types$between_residual, all = all)
-  
+  if (model@cpp){
+    x <- impliedcovstructures_cpp(x, "zeta_within", type = model@types$within_latent, all = all)
+    x <- impliedcovstructures_cpp(x, "epsilon_within", type = model@types$within_residual, all = all)
+    x <- impliedcovstructures_cpp(x, "zeta_between", type = model@types$between_latent, all = all)
+    x <- impliedcovstructures_cpp(x, "epsilon_between", type = model@types$between_residual, all = all)
+    
+    
+  } else {
+    x <- impliedcovstructures(x, "zeta_within", type = model@types$within_latent, all = all)
+    x <- impliedcovstructures(x, "epsilon_within", type = model@types$within_residual, all = all)
+    x <- impliedcovstructures(x, "zeta_between", type = model@types$between_latent, all = all)
+    x <- impliedcovstructures(x, "epsilon_between", type = model@types$between_residual, all = all)
+    
+  }
+    
   # For each group:
   nGroup <- length(x)
   
@@ -22,8 +36,8 @@ implied_ml_lvm <- function(model,all = FALSE){
   
   for (g in 1:nGroup){
     # Beta star within:
-    BetaStar_within <- as(solve(Diagonal(nrow(x[[g]]$beta_within)) - x[[g]]$beta_within),"Matrix")
-    BetaStar_between <- as(solve(Diagonal(nrow(x[[g]]$beta_between)) - x[[g]]$beta_between),"Matrix")
+    BetaStar_within <- as.matrix(solve(Diagonal(nrow(x[[g]]$beta_within)) - x[[g]]$beta_within))
+    BetaStar_between <- as.matrix(solve(Diagonal(nrow(x[[g]]$beta_between)) - x[[g]]$beta_between))
     
     Betasta_sigmaZeta_within <- BetaStar_within %*% x[[g]]$sigma_zeta_within
     Betasta_sigmaZeta_between <- BetaStar_between %*% x[[g]]$sigma_zeta_between
@@ -34,7 +48,7 @@ implied_ml_lvm <- function(model,all = FALSE){
     
     fullMu <- as(do.call(rbind,lapply(seq_len(nMaxInCluster),function(t){
       impMu[design[,t]==1,,drop=FALSE]
-    })), "Matrix")
+    })), "matrix")
     
     # List of implied varcovs within-subject latents:
     nLatent <- ncol(x[[g]]$lambda)
@@ -44,13 +58,13 @@ implied_ml_lvm <- function(model,all = FALSE){
     sigma_eta_between <- Betasta_sigmaZeta_between %*% t(BetaStar_between)
     
     # Create the block Toeplitz:
-    fullSigma_within_latent  <- Diagonal(nMaxInCluster) %x% sigma_eta_within
+    fullSigma_within_latent  <- as.matrix(Diagonal(nMaxInCluster) %x% sigma_eta_within)
     
     # Full within-subject cov matrix:
     fullSigma_within <- (Diagonal(nMaxInCluster) %x% x[[g]]$lambda) %*% fullSigma_within_latent %*% (Diagonal(nMaxInCluster) %x% t(x[[g]]$lambda)) + (Diagonal(nMaxInCluster) %x% x[[g]]$sigma_epsilon_within)
     
     # Full between-subject cov matrix:
-    fullSigma_between <- Matrix(1,nMaxInCluster,nMaxInCluster) %x%  (
+    fullSigma_between <- matrix(1,nMaxInCluster,nMaxInCluster) %x%  (
       x[[g]]$lambda %*% sigma_eta_between %*% t(x[[g]]$lambda) + x[[g]]$sigma_epsilon_between
     )
     
@@ -62,7 +76,7 @@ implied_ml_lvm <- function(model,all = FALSE){
     x[[g]]$sigma <- fullSigma[as.vector(design)==1,as.vector(design)==1]
     
     # FIXME: forcing symmetric, but not sure why this is needed...
-    x[[g]]$sigma <- 0.5*(x[[g]]$sigma + t(x[[g]]$sigma))
+    x[[g]]$sigma <- as.matrix(0.5*(x[[g]]$sigma + t(x[[g]]$sigma)))
     
     # if (any(is.na( x[[g]]$sigma))){
     #   browser()
@@ -75,7 +89,7 @@ implied_ml_lvm <- function(model,all = FALSE){
     
     # Let's round to make sparse if possible:
     # x[[g]]$kappa <- as(round(x[[g]]$kappa,14),"Matrix")
-    
+
     
     # Extra matrices needed in optimization:
     if (!all){

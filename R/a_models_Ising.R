@@ -15,12 +15,12 @@ Ising <- function(
   equal = "none", # Can also be any of the matrices
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
   estimator = "default",
-  optimizer = "default",
+  optimizer,
   storedata = FALSE,
-  WLS.V,
+  WLS.W,
   sampleStats, # Leave to missing
   identify = TRUE,
-  verbose = TRUE,
+  verbose = FALSE,
   maxNodes = 20
 ){
   covtype <- match.arg(covtype)
@@ -59,8 +59,8 @@ Ising <- function(
   # Obtain sample stats:
   if (missing(sampleStats)){
     # WLS weights:
-    if (missing(WLS.V)){
-      WLS.V <- ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
+    if (missing(WLS.W)){
+      WLS.W <- ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
                       switch(estimator,
                              "WLS" = "full",
                              "ULS" = "identity",
@@ -78,7 +78,7 @@ Ising <- function(
                                missing = ifelse(estimator == "FIML","pairwise",missing),
                                fimldata = estimator == "FIML",
                                storedata = storedata,
-                               weightsmatrix = WLS.V,
+                               weightsmatrix = WLS.W,
                                # corinput = corinput,
                                covtype=covtype,
                                verbose=verbose)
@@ -100,9 +100,9 @@ Ising <- function(
   # Generate model object:
   model <- generate_psychonetrics(model = "Ising",sample = sampleStats, computed = FALSE, 
                                   equal = equal,
-                                  optimizer = optimizer, estimator = estimator, distribution = "Ising",
+                                  optimizer =  "nlminb", estimator = estimator, distribution = "Ising",
                                   rawts = FALSE, types = list(),
-                                  submodel = type)
+                                  submodel = type, verbose=verbose)
   
   # Number of groups:
   nGroup <- nrow(model@sample@groups)
@@ -146,7 +146,7 @@ Ising <- function(
     model@extramatrices <- list(
       D = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
       L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
-      In = Diagonal(nNode), # Identity of dim n
+      In = as(diag(nNode),"dgCMatrix"), # Identity of dim n
       responses = responses
     )
 
@@ -204,6 +204,12 @@ Ising <- function(
   # Identify model:
   if (identify){
     model <- identify(model)
+  }
+  
+  if (missing(optimizer)){
+    model <- setoptimizer(model, "default")
+  } else {
+    model <- setoptimizer(model, optimizer)
   }
   
   # Return model:

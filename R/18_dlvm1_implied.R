@@ -1,13 +1,27 @@
 # Implied model for precision. Requires appropriate model matrices:
 implied_dlvm1 <- function(model,all = FALSE){
-  x <- formModelMatrices(model)
+  if (model@cpp){
+    x <- formModelMatrices_cpp(model)
+  } else {
+    x <- formModelMatrices(model)  
+  }
   
-  # Implied covariance structures:
-  x <- impliedcovstructures(x, "zeta_within", type = model@types$within_latent, all = all)
-  x <- impliedcovstructures(x, "epsilon_within", type = model@types$within_residual, all = all)
-  x <- impliedcovstructures(x, "zeta_between", type = model@types$between_latent, all = all)
-  x <- impliedcovstructures(x, "epsilon_between", type = model@types$between_residual, all = all)
-  
+  if (model@cpp){
+    # Implied covariance structures:
+    x <- impliedcovstructures_cpp(x, "zeta_within", type = model@types$within_latent, all = all)
+    x <- impliedcovstructures_cpp(x, "epsilon_within", type = model@types$within_residual, all = all)
+    x <- impliedcovstructures_cpp(x, "zeta_between", type = model@types$between_latent, all = all)
+    x <- impliedcovstructures_cpp(x, "epsilon_between", type = model@types$between_residual, all = all)
+    
+  } else {
+    # Implied covariance structures:
+    x <- impliedcovstructures(x, "zeta_within", type = model@types$within_latent, all = all)
+    x <- impliedcovstructures(x, "epsilon_within", type = model@types$within_residual, all = all)
+    x <- impliedcovstructures(x, "zeta_between", type = model@types$between_latent, all = all)
+    x <- impliedcovstructures(x, "epsilon_between", type = model@types$between_residual, all = all)
+    
+  }
+    
   # For each group:
   nGroup <- length(x)
   
@@ -22,7 +36,7 @@ implied_dlvm1 <- function(model,all = FALSE){
   
   for (g in 1:nGroup){
     # Beta star:
-    BetaStar <- as(solve(I_eta %x% I_eta - (x[[g]]$beta %x% x[[g]]$beta)),"Matrix")
+    BetaStar <- as.matrix(solve(I_eta %x% I_eta - (x[[g]]$beta %x% x[[g]]$beta)))
     
     # Implied mean vector:
     impMu <- x[[g]]$nu + x[[g]]$lambda %*% x[[g]]$mu_eta
@@ -35,7 +49,7 @@ implied_dlvm1 <- function(model,all = FALSE){
     nLatent <- ncol(x[[g]]$lambda)
     
     allSigmas_within <- list()
-    allSigmas_within[[1]] <- Matrix(as.vector(BetaStar %*% Vec(x[[g]]$sigma_zeta_within)), nLatent, nLatent)
+    allSigmas_within[[1]] <- matrix(as.vector(BetaStar %*% Vec(x[[g]]$sigma_zeta_within)), nLatent, nLatent)
     
     # Fill implied:
     if (nTime > 1){
@@ -45,7 +59,7 @@ implied_dlvm1 <- function(model,all = FALSE){
     }
     
     # Create the block Toeplitz:
-    fullSigma_within_latent  <- as(blockToeplitz(lapply(allSigmas_within,as.matrix)), "Matrix")
+    fullSigma_within_latent  <- blockToeplitz(lapply(allSigmas_within,as.matrix))
     
     # Full within-subject cov matrix:
     fullSigma_within <- (Diagonal(nTime) %x% x[[g]]$lambda) %*% fullSigma_within_latent %*% (Diagonal(nTime) %x% t(x[[g]]$lambda)) + (Diagonal(nTime) %x% x[[g]]$sigma_epsilon_within)
@@ -59,11 +73,11 @@ implied_dlvm1 <- function(model,all = FALSE){
     fullSigma <- fullSigma_within + fullSigma_between
     
     # Subset and add to the list:
-    x[[g]]$mu <- fullMu
+    x[[g]]$mu <- as.matrix(fullMu)
     x[[g]]$sigma <- fullSigma[as.vector(design)==1,as.vector(design)==1]
     
     # FIXME: forcing symmetric, but not sure why this is needed...
-    x[[g]]$sigma <- 0.5*(x[[g]]$sigma + t(x[[g]]$sigma))
+    x[[g]]$sigma <- as.matrix(0.5*(x[[g]]$sigma + t(x[[g]]$sigma)))
     
     # if (any(is.na( x[[g]]$sigma))){
     #   browser()
@@ -104,7 +118,11 @@ implied_dlvm1 <- function(model,all = FALSE){
       }
       
     }
-    
+    # 
+    # # Kappa, sigma and mu never sparse:
+    # x[[g]]$mu <- as.matrix(x[[g]]$mu)
+    # x[[g]]$kappa <- as.matrix(x[[g]]$kappa)
+    # x[[g]]$sigma <- as.matrix(x[[g]]$sigma) 
   }
   
   x

@@ -1,7 +1,7 @@
 # some helper functions:
 Vec <- function(x){
   if (is.null(dim(x))){
-    return(Matrix(x,1,1))
+    return(matrix(x,1,1))
   }
   
   if (is(x,"matrix")){
@@ -9,14 +9,14 @@ Vec <- function(x){
   } else {
     # Assume Matrix package
     if (is(x,"sparseMatrix")){
-      as(c(as.matrix(x)), "Matrix") # FIXME: This should be better...
+      return(c(as.matrix(x))) # FIXME: This should be better...
       # if (length(x@x) == 0){
       #   return(Matrix(0, nrow=nrow(x)*ncol(x),ncol=1))
       # } else {
       #   as(c(as.matrix(x)), "Matrix") # FIXME: This should be better...
       # }
     } else {
-      return(Matrix(x@x))  
+      return(matrix(x@x))  
     }
   }
 }

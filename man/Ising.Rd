@@ -8,11 +8,12 @@ Ising model
 This is the family of Ising models fit to dichotomous datasets. Note that the input matters (see also https://arxiv.org/abs/1811.02916) in this model! Models based on a dataset that is encoded with -1 and 1 are not entirely equivalent to models based on datasets encoded with 0 and 1 (non-equivalences occur in multi-group settings with equality constrains). 
 }
 \usage{
-Ising(data, omega = "full", tau, beta, vars, groups, covs, means, nobs, 
-    covtype = c("choose","ML","UB"), responses, missing = "listwise", 
-    equal = "none", baseline_saturated = TRUE, estimator = "default", 
-    optimizer = "default", storedata = FALSE, WLS.V, sampleStats, 
-    identify = TRUE, verbose = TRUE, maxNodes = 20)
+Ising(data, omega = "full", tau, beta, vars, groups, covs,
+                    means, nobs, covtype = c("choose", "ML", "UB"),
+                    responses, missing = "listwise", equal = "none",
+                    baseline_saturated = TRUE, estimator = "default",
+                    optimizer, storedata = FALSE, WLS.W, sampleStats,
+                    identify = TRUE, verbose = FALSE, maxNodes = 20)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -62,12 +63,12 @@ A logical indicating if the baseline and saturated model should be included. Mos
 The estimator to be used. Currently implemented are \code{"ML"} for maximum likelihood estimation, \code{"FIML"} for full-information maximum likelihood estimation, \code{"ULS"} for unweighted least squares estimation, \code{"WLS"} for weighted least squares estimation, and \code{"DWLS"} for diagonally weighted least squares estimation. Only ML estimation is currently supported for the Ising model. 
 }
   \item{optimizer}{
-The optimizer to be used. Usually either \code{"nlminb"} (with box constrains) or \code{"ucminf"} (ignoring box constrains), but any optimizer supported by \code{optimr} can be used.
+The optimizer to be used. Can be one of \code{"nlminb"} (the default R \code{nlminb} function), \code{"ucminf"} (from the \code{optimr} package), and C++ based optimizers \code{"cpp_L-BFGS-B"}, \code{"cpp_BFGS"}, \code{"cpp_CG"}, \code{"cpp_SANN"}, and \code{"cpp_Nelder-Mead"}. The C++ optimizers are faster but slightly less stable. Defaults to \code{"nlminb"}.
 }
   \item{storedata}{
 Logical, should the raw data be stored? Needed for bootstrapping (see \code{bootstrap}).
 }
-\item{WLS.V}{
+\item{WLS.W}{
 Optional WLS weights matrix. CURRENTLY NOT USED.
 }
   \item{sampleStats}{
@@ -129,7 +130,9 @@ model1 <- model1 \%>\% runmodel
 model1b <- model1 \%>\% prune(alpha = 0.05) \%>\%  stepup(alpha = 0.05)
 
 # Equal networks:
-model2 <- model1 \%>\% groupequal("omega") \%>\% runmodel
+suppressWarnings(
+  model2 <- model1 \%>\% groupequal("omega") \%>\% runmodel
+)
 
 # Prune-stepup to find a sparse model:
 model2b <- model2 \%>\% prune(alpha = 0.05) \%>\% stepup(mi = "mi_equal", alpha = 0.05)

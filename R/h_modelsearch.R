@@ -4,11 +4,15 @@ modelsearch <- function(x,
                         matrices, # Matrices to search
                         prunealpha = 0.01, # Minimum p-value for edges tested to be removed
                         addalpha = 0.01, # Maximum p-value for edges tested to be added
-                        verbose = TRUE,
+                        verbose,
                         ...
 ){
   mi <- "mi"
   pmi <- "pmi"
+  
+  if (missing(verbose)){
+    verbose <- x@verbose
+  }
   
   # FIXME: If number of groups > 1, stop:
   if (nrow(x@sample@groups) > 1) stop("'modelsearch' is only implemented for single group models at the moment.")
@@ -153,12 +157,19 @@ modelsearch <- function(x,
     # List all parameters in matrices of interest:
     ind <- which(x@parameters$matrix %in% matrices & !x@parameters$identified)
     
+    nona <- function(x){
+      x[is.na(x)] <- FALSE
+      x
+    }
+    
     allParsToConsider <- ind[
+      !is.na(x@parameters$fixed[ind]) &
+        
       # Non significant edges to remove?
-      (!x@parameters$fixed[ind]  & x@parameters$p[ind] > prunealpha) |
+        nona(!x@parameters$fixed[ind]  & x@parameters$p[ind] > prunealpha) |
         
         # Significant edges to add?
-        (x@parameters$fixed[ind]  & x@parameters[[pmi]][ind] < addalpha)
+        nona(x@parameters$fixed[ind]  & x@parameters[[pmi]][ind] < addalpha)
       ]
     
  
@@ -203,34 +214,41 @@ modelsearch <- function(x,
                                          start = x@parameters$epc[curpar], verbose = FALSE)
           
           # Run the model:
-          propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...)
+          suppressWarnings(propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...))
           
           # Fisher information ok?
-          ev <- eigen(propMods[[i]]@information)$values
+          # ev <- eigen(propMods[[i]]@information)$values
           
           # If not, try again with different starts:
-          if (any(ev < -sqrt(.Machine$double.eps))){
+          # if (any(ev < -sqrt(.Machine$double.eps))){
+          if (!sympd_cpp(propMods[[i]]@information)){
             try <- 1
             repeat{
               if (try == 1){
-                # First try, 0.5 * EPC:
+                # First try, EPC:
+                propMods[[i]] <- x %>% freepar(matrix = x@parameters$matrix[curpar], row = x@parameters$row[curpar], col = x@parameters$col[curpar], 
+                                               group = x@parameters$group_id[curpar],
+                                               start = x@parameters$epc[curpar], verbose = FALSE)
+                
+              } else if (try == 2){
+                # Second try, 0.5 * EPC:
                 propMods[[i]] <- x %>% freepar(matrix = x@parameters$matrix[curpar], row = x@parameters$row[curpar], col = x@parameters$col[curpar], 
                                                group = x@parameters$group_id[curpar],
                                                start = 0.5 * x@parameters$epc[curpar], verbose = FALSE)
                 
-              } else if (try == 2){
-                # Second try, 0.0001 * sign(EPC):
+              } else if (try == 3){
+                # Third try, 0.0001 * sign(EPC):
                 propMods[[i]] <- x %>% freepar(matrix = x@parameters$matrix[curpar], row = x@parameters$row[curpar], col = x@parameters$col[curpar], 
                                                group = x@parameters$group_id[curpar],
                                                start = 0.0001 * sign(x@parameters$epc[curpar]), verbose = FALSE)
                 
-              } else if (try == 3){
+              } else if (try == 4){
                 # Final try, emergency start:
                 propMods[[i]] <- x %>% freepar(matrix = x@parameters$matrix[curpar], row = x@parameters$row[curpar], col = x@parameters$col[curpar], 
                                                group = x@parameters$group_id[curpar],
                                                start = x@parameters$epc[curpar], verbose = FALSE) %>% emergencystart
                 
-              } else if (try > 3){
+              } else if (try > 4){
                 
                 # Give up:
                 propMods[[i]] <- x
@@ -240,12 +258,13 @@ modelsearch <- function(x,
               }
               
               # Run the model:
-              propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...)
+              suppressWarnings(propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...))
               
               # Fisher information ok?
-              ev <- eigen(propMods[[i]]@information)$values
+              # ev <- eigen(propMods[[i]]@information)$values
               
-              if (all(ev > -sqrt(.Machine$double.eps))){
+              # if (all(ev > -sqrt(.Machine$double.eps))){
+              if (sympd_cpp(propMods[[i]]@information)){
                 break
               } else {
                 try <- try + 1
@@ -268,10 +287,12 @@ modelsearch <- function(x,
           propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...)
           
           # Fisher information ok?
-          ev <- eigen(propMods[[i]]@information)$values
+          # ev <- eigen(propMods[[i]]@information)$values
           
           # If not, try again with different starts:
-          if (any(ev < -sqrt(.Machine$double.eps))){
+          # if (any(ev < -sqrt(.Machine$double.eps))){
+          
+          if (!sympd_cpp(propMods[[i]]@information)){
             try <- 1
             repeat{
               if (try == 1){
@@ -304,9 +325,11 @@ modelsearch <- function(x,
               propMods[[i]] <- propMods[[i]] %>% runmodel(verbose = FALSE, addMIs = FALSE, ...)
               
               # Fisher information ok?
-              ev <- eigen(propMods[[i]]@information)$values
+              # ev <- eigen(propMods[[i]]@information)$values
               
-              if (all(ev > -sqrt(.Machine$double.eps))){
+              # if (all(ev > -sqrt(.Machine$double.eps))){
+              
+              if (sympd_cpp(propMods[[i]]@information)){
                 break
               } else {
                 try <- try + 1

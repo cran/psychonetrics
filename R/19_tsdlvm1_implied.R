@@ -1,10 +1,26 @@
 # Implied model for precision. Requires appropriate model matrices:
 implied_tsdlvm1 <- function(model,all = FALSE){
-  x <- formModelMatrices(model)
+  if (model@cpp){
+    x <- formModelMatrices_cpp(model)
+  } else {
+    x <- formModelMatrices(model)  
+  }
   
   # Implied covariance structures:
-  x <- impliedcovstructures(x, "zeta", type = model@types$zeta, all = all)
-  x <- impliedcovstructures(x, "epsilon", type = model@types$epsilon, all = all)
+  if (model@cpp){
+    # Implied covariance structures:
+    x <- impliedcovstructures_cpp(x, "zeta", type = model@types$zeta, all = all)
+    x <- impliedcovstructures_cpp(x, "epsilon", type = model@types$epsilon, all = all)
+    
+  } else {
+    # Implied covariance structures:
+    x <- impliedcovstructures(x, "zeta", type = model@types$zeta, all = all)
+    x <- impliedcovstructures(x, "epsilon", type = model@types$epsilon, all = all)
+    
+  }
+  
+  
+
   # x <- impliedcovstructures(x, "zeta_between", type = model@types$between_latent, all = all)
   # x <- impliedcovstructures(x, "epsilon_between", type = model@types$between_residual, all = all)
   
@@ -19,19 +35,19 @@ implied_tsdlvm1 <- function(model,all = FALSE){
   
   for (g in 1:nGroup){
     # Beta star:
-    BetaStar <- as(solve(I_eta %x% I_eta - (x[[g]]$beta %x% x[[g]]$beta)),"Matrix")
+    BetaStar <- as.matrix(solve(I_eta %x% I_eta - (x[[g]]$beta %x% x[[g]]$beta)))
     
     # Implied mean vector:
     impMu <- x[[g]]$nu + x[[g]]$lambda %*% x[[g]]$mu_eta
     
-    fullMu <- as(rbind(x[[g]]$exo_means,impMu), "Matrix")
+    fullMu <- rbind(x[[g]]$exo_means,impMu)
     
     # Exogenous cov part:
     exoCov <- x[[g]]$exo_cholesky %*% t( x[[g]]$exo_cholesky)
     
     # Latent lag-0:
     nLatent <- ncol(x[[g]]$lambda)
-    Sigma_eta_0 <- Matrix(as.vector(BetaStar %*% Vec(x[[g]]$sigma_zeta)), nLatent, nLatent)
+    Sigma_eta_0 <- matrix(as.vector(BetaStar %*% Vec(x[[g]]$sigma_zeta)), nLatent, nLatent)
     
     # Observed stationary:
     Sigma_y_0 <-  x[[g]]$lambda %*%  Sigma_eta_0 %*% t(x[[g]]$lambda) + x[[g]]$sigma_epsilon
@@ -80,6 +96,11 @@ implied_tsdlvm1 <- function(model,all = FALSE){
       # Add PDC:
       x[[g]]$PDC <- computePDC(x[[g]]$beta,x[[g]]$kappa_zeta)
     }
+    
+    # # Kappa, sigma and mu never sparse:
+    # x[[g]]$mu <- as.matrix(x[[g]]$mu)
+    # x[[g]]$kappa <- as.matrix(x[[g]]$kappa)
+    # x[[g]]$sigma <- as.matrix(x[[g]]$sigma)
     
   }
   

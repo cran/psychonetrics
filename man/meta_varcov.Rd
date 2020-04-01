@@ -1,5 +1,6 @@
 \name{meta_varcov}
 \alias{meta_varcov}
+\alias{meta_ggm}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Variance-covariance and GGM meta analysis
@@ -8,16 +9,21 @@ Variance-covariance and GGM meta analysis
 Meta analysis of correlation matrices to fit a homogenous correlation matrix or Gaussian graphical model. Based on meta-analytic SEM (Jak \& Cheung, 2019).
 }
 \usage{
-meta_varcov(cors, nobs, Vmats, Vmethod = c("default", "individual", 
-  "psychonetrics_individual", "psychonetrics_pooled", "metaSEM_individual", 
-  "metaSEM_weighted"), type = c("cor", "ggm"), sigma_y = "full", kappa_y = "full", 
-  omega_y = "full", lowertri_y = "full", delta_y = "full", rho_y = "full", 
-  SD_y = "full", randomEffects = c("cov", "chol", "prec", "ggm", "cor"), 
-  sigma_randomEffects = "full", kappa_randomEffects = "full", 
-  omega_randomEffects = "full", lowertri_randomEffects = "full", 
-  delta_randomEffects = "full", rho_randomEffects = "full", SD_randomEffects = "full", 
-  vars, baseline_saturated = TRUE, optimizer = "default", estimator = c("FIML", "ML"), 
-  sampleStats, verbose = TRUE)
+meta_varcov(cors, nobs, Vmats, Vmethod = c("individual", "pooled",
+                    "metaSEM_individual", "metaSEM_weighted"), Vestimation
+                    = c("averaged", "per_study"), type = c("cor", "ggm"),
+                    sigma_y = "full", kappa_y = "full", omega_y = "full",
+                    lowertri_y = "full", delta_y = "full", rho_y = "full",
+                    SD_y = "full", randomEffects = c("chol", "cov",
+                    "prec", "ggm", "cor"), sigma_randomEffects = "full",
+                    kappa_randomEffects = "full", omega_randomEffects =
+                    "full", lowertri_randomEffects = "full",
+                    delta_randomEffects = "full", rho_randomEffects =
+                    "full", SD_randomEffects = "full", vars,
+                    baseline_saturated = TRUE, optimizer, estimator =
+                    c("FIML", "ML"), sampleStats, verbose = FALSE)
+  
+meta_ggm(...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,6 +38,9 @@ Optional list with 'V' matrices (sampling error variance approximations).
 }
   \item{Vmethod}{
 Which method should be used to apprixomate the sampling error variance?
+}
+\item{Vestimation}{
+How should the sampling error estimates be evaluated?
 }
   \item{type}{
 What to model? Currently only \code{"cor"} and \code{"ggm"} are supported.
@@ -88,7 +97,7 @@ Variables to be included.
 A logical indicating if the baseline and saturated model should be included. Mostly used internally and NOT Recommended to be used manually.
 }
   \item{optimizer}{
-The optimizer to be used. Usually either \code{"nlminb"} (with box constrains) or \code{"ucminf"} (ignoring box constrains), but any optimizer supported by \code{optimr} can be used.
+The optimizer to be used. Can be one of \code{"nlminb"} (the default R \code{nlminb} function), \code{"ucminf"} (from the \code{optimr} package), and C++ based optimizers \code{"cpp_L-BFGS-B"}, \code{"cpp_BFGS"}, \code{"cpp_CG"}, \code{"cpp_SANN"}, and \code{"cpp_Nelder-Mead"}. The C++ optimizers are faster but slightly less stable. Defaults to \code{"nlminb"}.
 }
   \item{estimator}{
 The estimator to be used. Currently implemented are \code{"ML"} for maximum likelihood estimation or \code{"FIML"} for full-information maximum likelihood estimation.
@@ -98,6 +107,9 @@ An optional sample statistics object. Mostly used internally.
 }
   \item{verbose}{
 Logical, should progress be printed to the console?
+}
+\item{\dots}{
+Arguments sent to \code{meta_varcov}
 }
 }
 

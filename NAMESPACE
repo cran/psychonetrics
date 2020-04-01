@@ -1,9 +1,17 @@
 ### Dynlib ###
 useDynLib(psychonetrics, .registration = TRUE)
 
-# importFrom(metaSEM, asyCov)
+export(emergencystart)
 
+importFrom(psych, fa)
+importFrom(GA, ga)
+importFrom(combinat, permn)
+
+# importFrom(metaSEM, asyCov)
+export(meta_ggm)
 export(simplestructure)
+
+export(setverbose)
 
 # Multi-level models:
 export(ml_tsdlvm1)
@@ -27,6 +35,7 @@ S3method(plot, esa_manual)
 
 S3method(print, esa)
 S3method(print, esa_manual)
+S3method(print, psychonetrics_compare)
 
 import(IsingSampler)
 
@@ -159,3 +168,5 @@ import(magrittr)
      importFrom("utils", "setTxtProgressBar", "txtProgressBar")
      
      importFrom("stats", "qnorm")
+     
+     importFrom("stats", "cor", "weighted.mean")

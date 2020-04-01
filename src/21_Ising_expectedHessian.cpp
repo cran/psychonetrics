@@ -12,10 +12,10 @@ using namespace arma;
 // Expected Hamiltonian
 // [[Rcpp::export]]
 double expHcpp(
-    arma::mat states,
-    arma::vec probabilities,
-    arma::mat omega,
-    arma::vec tau,
+    const arma::mat& states,
+    const arma::vec& probabilities,
+    const arma::mat& omega,
+    const arma::vec& tau,
     const int nstate,
     const int nvar) {
   int s, i, j;
@@ -42,10 +42,10 @@ double expHcpp(
 
 // Same but for the sum of squares:
 double expH2cpp(
-    arma::mat states,
-    arma::vec probabilities,
-    arma::mat omega,
-    arma::vec tau,
+    const arma::mat& states,
+    const arma::vec& probabilities,
+    const arma::mat& omega,
+    const arma::vec& tau,
     const int nstate,
     const int nvar) {
   int s, i, j;
@@ -77,15 +77,17 @@ double expH2cpp(
 // Asymptotic cov matrix
 // [[Rcpp::export]]
 arma::mat expHessianCpp(
-    arma::mat states,
-    arma::vec probabilities,
-    arma::mat omega,
-    arma::vec tau,
+    const arma::mat& states,
+    const arma::vec& probabilities,
+    const arma::mat& omega,
+    const arma::vec& tau,
     double beta,
     const int nstate,
     const int nvar) {
   // Borrowing heavily on the WLS computation code, order of parameters is (thresholds, omega[lower.tri], beta)
   int i, j, g, h, s, ii, jj;
+  
+
   
   // Compute expected hamiltonian:
   double expH = expHcpp(
@@ -287,6 +289,7 @@ arma::mat expHessianCpp(
     }
   }
   
+
   // Return
   return Hessian; // Dummy return omega
 }

@@ -4,13 +4,22 @@
 
 # Computes fit measures
 addfit <- function(
- x #, ebicTuning = 0.25
+ x, #, ebicTuning = 0.25
+ verbose
 ){
+  if (missing(verbose)){
+    verbose <- x@verbose
+  }
+  
+  if (verbose){
+    message("Adding fit measures...")
+  }
+  
   # If not computed, stop:
   if (!x@computed){
     stop("Model has not yet been run. Use runmodel(object) first!")
   }
-  
+
 
   # Sample size:
   sampleSize <- sum(x@sample@groups$nobs)
@@ -78,6 +87,10 @@ addfit <- function(
   
   # Baseline model:
   if (!is.null(x@baseline_saturated$baseline) && x@baseline_saturated$baseline@computed){
+    if (length(x@baseline_saturated$baseline@objective) == 0){
+      x@baseline_saturated$baseline@objective <- psychonetrics_fitfunction(parVector(x@baseline_saturated$baseline),x@baseline_saturated$baseline)
+    }
+    
     # fitMeasures$fmin_baseline <- x@baseline_saturated$baseline@objective
     # fitMeasures$baseline.chisq <-  sampleSize * fitMeasures$fmin_baseline
     if (x@estimator%in% c("FIML","ML")){

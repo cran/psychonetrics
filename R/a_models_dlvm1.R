@@ -69,9 +69,9 @@ dlvm1 <- function(
   baseline_saturated = TRUE, # Leave to TRUE! Only used to stop recursive calls
   # fitfunctions, # Leave empty
   estimator = "ML",
-  optimizer = "default",
+  optimizer,
   storedata = FALSE,
-  verbose = TRUE,
+  verbose = FALSE,
   sampleStats
 ){
   covtype <- match.arg(covtype)
@@ -127,6 +127,7 @@ dlvm1 <- function(
                                fimldata = estimator == "FIML",
                                storedata = storedata,
                                covtype=covtype,
+                               verbose=verbose,
                                weightsmatrix = ifelse(!estimator %in% c("WLS","ULS","DWLS"), "none",
                                                       switch(estimator,
                                                         "WLS" = "full",
@@ -137,7 +138,8 @@ dlvm1 <- function(
   
   
   # Design matrix:
-  design <- as(1*(!is.na(vars)),"sparseMatrix")
+  # design <- as(1*(!is.na(vars)),"dgCMatrix")
+  design <- as.matrix(1*(!is.na(vars)))
   
   # time per var:
   timePerVar <- as.vector(design * row(design))
@@ -219,8 +221,8 @@ dlvm1 <- function(
                                   ),
                                   sample = sampleStats,computed = FALSE, 
                                   equal = equal,
-                                  optimizer = optimizer, estimator = estimator, distribution = "Gaussian",
-                                  identification=identification)
+                                  optimizer = "nlminb", estimator = estimator, distribution = "Gaussian",
+                                  identification=identification, verbose = verbose)
   
   # Number of groups:
   nGroup <- nrow(model@sample@groups)
@@ -271,7 +273,7 @@ dlvm1 <- function(
   # Quick and dirty sigma_zeta_within estimate:
   prior_sig_zeta_within <- lapply(seq_along(firstSigma1),function(i){
     # Let's take a pseudoinverse:
-    curLam <- Matrix(as.vector(modMatrices$lambda$start[,,i,drop=FALSE]),nVar,nLat)
+    curLam <- matrix(as.vector(modMatrices$lambda$start[,,i,drop=FALSE]),nVar,nLat)
     
     inv <- corpcor::pseudoinverse(as.matrix(kronecker(curLam,curLam)))
     
@@ -325,7 +327,7 @@ dlvm1 <- function(
   # Quick and dirty sigma_zeta_between estimate:
   prior_sig_zeta_between <- lapply(seq_along(firstSigma1),function(i){
     # Let's take a pseudoinverse:
-    curLam <- Matrix(as.vector(modMatrices$lambda$start[,,i,drop=FALSE]),nVar,nLat)
+    curLam <- matrix(as.vector(modMatrices$lambda$start[,,i,drop=FALSE]),nVar,nLat)
     
     inv <- corpcor::pseudoinverse(as.matrix(kronecker(curLam,curLam)))
     
@@ -384,8 +386,8 @@ dlvm1 <- function(
     # Dstar_between = psychonetrics::duplicationMatrix(nLat,diag = FALSE),  
     
     # Identity matrices:
-    I_y = Diagonal(nVar),
-    I_eta = Diagonal(nLat),
+    I_y = as(diag(nVar),"dgCMatrix"),
+    I_eta = as(diag(nLat),"dgCMatrix"),
     # I_within = Diagonal(nLat),
     # I_between = Diagonal(nLat),
     
@@ -396,9 +398,9 @@ dlvm1 <- function(
     # A_between = psychonetrics::diagonalizationMatrix(nLat),
     
     # Commutation matrices:
-    C_y_y = as(lavaan::lav_matrix_commutation(nVar, nVar),"sparseMatrix"),
-    C_y_eta = as(lavaan::lav_matrix_commutation(nVar, nLat),"sparseMatrix"),
-    C_eta_eta = as(lavaan::lav_matrix_commutation(nLat, nLat),"sparseMatrix"),
+    C_y_y = as(lavaan::lav_matrix_commutation(nVar, nVar),"dgCMatrix"),
+    C_y_eta = as(lavaan::lav_matrix_commutation(nVar, nLat),"dgCMatrix"),
+    C_eta_eta = as(lavaan::lav_matrix_commutation(nLat, nLat),"dgCMatrix"),
     
     # 
     # C_y_within = as(lavaan::lav_matrix_commutation(nVar, nLat),"sparseMatrix"),
@@ -454,6 +456,8 @@ dlvm1 <- function(
   model@extramatrices$P <- sparseMatrix(
     i = distVecrawts, j = distVec, dims = c(nTotal, totElements)
   )
+  
+  model@extramatrices$P <- as( model@extramatrices$P, "dgCMatrix")
   # model@extramatrices$P <- sparseMatrix(j=seq_along(inds),i=order(inds))
   
   
@@ -512,6 +516,12 @@ dlvm1 <- function(
   # Identify model:
   if (identify){
     model <- identify(model)
+  }
+  
+  if (missing(optimizer)){
+    model <- setoptimizer(model, "default")
+  } else {
+    model <- setoptimizer(model, optimizer)
   }
   
   # Return model:
