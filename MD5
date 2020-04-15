@@ -1,6 +1,6 @@
-1c06b4f7caf1d09b308661ee858fcb99 *DESCRIPTION
+6f8ba4c66576d58be810387e2630f50a *DESCRIPTION
 df98fa61e8026b88db3c5928c55095ef *NAMESPACE
-390dbb452c9b225c92a5cf18b738378c *NEWS
+39a92feb70234fd68c420c21ffa31693 *NEWS
 8bdeac2962f8aeec170f16ec77701664 *R/00_codeOrganization.R
 39edb48d7703de9a0e4b8b66485cd068 *R/00_steps_to_implement_distribution.R
 23cbf9e2c44d1fc02a92c00e7e0d9d9d *R/00_steps_to_implement_estimator.R
@@ -113,7 +113,7 @@ aecd8f8852ba895cdfefea5af1f35801 *R/21_Ising_prepare.R
 4706f84b7e82671a2de91d050006d26a *R/22_ml_lvm_identify.R
 6da6c1c59ae33c82adfc79d45c59b50e *R/22_ml_lvm_implied.R
 2b0a07b0563f6d116db35d058aedbd1a *R/22_ml_lvm_prepare.R
-6ff8486b1428dbff644a37f2a72340a9 *R/RcppExports.R
+4720bbf5e543375ae35679c3e1244e4f *R/RcppExports.R
 54c3b09a1f89e664da5fb8cb892bcd1c *R/a_models_Ising.R
 49d501270df8e5632fcc273d712c2da5 *R/a_models_bifactor.R
 43fdd4d275615c9d14638e09d0183444 *R/a_models_cholesky.R
@@ -178,8 +178,8 @@ f6cebf8da969167611240c80872c2723 *R/f_convenience_residuals.R
 19f9a5d930f3c9d9cb8488eeff243931 *R/f_convenience_simplestructure.R
 c203c68dd6e3b9e9b9ccf2b906469c8d *R/g_simulations_replicator.R
 43b92b407a4c1c8c9beb90921f13e1d6 *R/h_modelsearch.R
-aba17230b1cfe457d7efe419be8a3192 *build/partial.rdb
-3d4c9ad99e997cc27eeffe13347e619d *data/Jonas.RData
+a5e1321702e95fa32c4a48b9f70c1bf3 *build/partial.rdb
+dbd2c753a6f43e3e86725b294be9ec3f *data/Jonas.RData
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
 6d08ce8bca90114386ac1a810a4b6796 *man/Ising.Rd
 f1a101d31b599431da9c2d9b60791435 *man/Jonas.Rd
@@ -222,7 +222,7 @@ c4d9dfe2652364bcba459b672172a4f4 *man/unionmodel_intersectionmodel.Rd
 d9dfd70574386314a10455c8ea659fe1 *man/var1_family.Rd
 08476ecb8069f177c8969c7e7b41211d *man/varcov_family.Rd
 cde74a5aa7ee58407a88c938bf14b7fe *src/02_algebragelpers_kronecker.h
-707d69bc6c10b3d8b88263b908644cdc *src/02_algebrahelpers_RcppHelpers.cpp
+be2769c50f855e2f9286660d17782f15 *src/02_algebrahelpers_RcppHelpers.cpp
 0c39a2eafeaab632c3778efb95d4783d *src/02_algebrahelpers_RcppHelpers.h
 7d96eaaacf9ba3c70f9b30fc8cdfab8f *src/02_algebrahelpers_kronecker.cpp
 6de2a4c90e7e0a817b7502b3474eb528 *src/02_algebrahelpers_modelMatrix_cpp.cpp
