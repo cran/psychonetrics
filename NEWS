@@ -1,3 +1,9 @@
+Changes in version 0.7.2:
+  o Fixed a bug with removing diagonal elements of sigma_epsilon with single indicators
+  o Fixed another bug with models with only one free indicator
+  o Added the partialprune function for partially pruning multi-group models
+
+
 Changes in version 0.7.1:
   o Fixed a bug for Solaris
 

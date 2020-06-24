@@ -15,10 +15,10 @@ identify_lvm <- function(x){
   
   # Always set residual (co)variance of single indicator items to zero:
   nIndicators <- x@parameters %>% filter_(~matrix == "lambda") %>% group_by_(~var2_id) %>% 
-    summarize_(nLats = ~length(unique(var1_id[!fixed])))
+    summarize_(nLats = ~length(unique(var1_id[!fixed | est != 0])))
 
   if (any(nIndicators$nLats == 1)){
-    for (inds in unique(x@parameters$var1_id[x@parameters$var2_id%in%nIndicators$var2_id[nIndicators$nLats == 1] & x@parameters$matrix == "lambda"])){
+    for (inds in unique(x@parameters$var1_id[x@parameters$var2_id%in%nIndicators$var2_id[nIndicators$nLats == 1] & x@parameters$matrix == "lambda" & !x@parameters$fixed])){
       # Which to constrain?
       cons <- x@parameters$var1_id == inds & 
         x@parameters$matrix %in% c("sigma_epsilon","omega_epsilon","delta_epsilon","lowertri_epsilon","kappa_epsilon")

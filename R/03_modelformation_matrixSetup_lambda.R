@@ -6,7 +6,8 @@ matrixsetup_lambda <- function(
   equal = FALSE,
   sampletable,
   name = "lambda",
-  identification = c("loadings","variance")
+  identification = c("loadings","variance"),
+  simple = FALSE
 ){
   identification <- match.arg(identification)
   
@@ -24,7 +25,12 @@ matrixsetup_lambda <- function(
   for (g in 1:nGroup){
     # Current cov estimate:
     curcov <- as.matrix(spectralshift(expcov[[g]]))
-    if (nObs > 3 && nObs > nLat){
+    if (!(nObs > 3 && nObs > nLat) || simple){
+      simple <- TRUE
+    } else {
+      simple <- FALSE
+
+      tryres <- try({
       
       # Residual and latent varcov:
       fa <- psych::fa(r = curcov, nfactors = nLat, rotate = "promax", covar = TRUE)
@@ -65,8 +71,11 @@ matrixsetup_lambda <- function(
         lambdaStart[,,g] <- lambdaStart[,,g] %*% scaleMat
         sigma_zeta_start[,,g] <- solve(scaleMat) %*% sigma_zeta_start[,,g] %*% solve(scaleMat)
       }
-      
-    } else {
+      })
+      if (is (tryres, "try-error")) simple <- TRUE
+    }
+    
+    if (simple){
       sigma_epsilon_start[,,g] <- diag(nObs)
       sigma_zeta_start[,,g] <- diag(nLat)
       lambdaStart[,,g] <- lambda[,,g]
