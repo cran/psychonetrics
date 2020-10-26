@@ -1,3 +1,19 @@
+Changes in Version 0.8:
+  - The log determinant is now computer better to be able to include fit measures at higher model complexities
+  - The 'return_improper' argument in runmodel( ) now returns improper estimates without trying different starting values
+  - Fixed a bug in meta_varcov when using individual estimates of the sampling variation
+
+Changes in version 0.7.6:
+  - Model estimations that used improper estimation (pseudoinverse of variance-covariance matrix) now return with an error unless return_improper = TRUE in runmodel()
+  - Equality-free MIs are now also computed when all edges are included
+
+Changes in version 0.7.5:
+  - Fixed a bug with nu_zeta being constrained in multigroup LGC models.
+  - factorscores now supports multi group models
+
+Changes in version 0.7.3:
+  - Added the 'covariates_as' argument to latentgrowth() to model covariates with regressions (now default) or covariances
+
 Changes in version 0.7.2:
   o Fixed a bug with removing diagonal elements of sigma_epsilon with single indicators
   o Fixed another bug with models with only one free indicator
