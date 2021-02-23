@@ -1,3 +1,16 @@
+Changes in Version 0.9:
+  - Changed 'rel.tol=1e-10' in the nlminb optimizer to be in line with lavaan
+  - Added 'warn_improper' argument to runmodel(..)
+  - The argument 'return_improper' now defaults to TRUE
+  - Optimizer no longer uses a spectral shift when inverting a semi-positive definite matrix
+  - Detection of non positive definite matrices is now done faster and should lead to less problems
+  - The default optimizer is now cpp_L-BFGS-B!
+  - Added the 'bounded' argument to runmodel() to define if bounded estimation should be used (defaults to TRUE)
+  - Diagonals of symmetrical matrices can no longer be estimated to be negative (avoiding Heywood cases, although doing this with a Cholesky decomposition is nicer!)
+  
+Changes in Version 0.8.1:
+  - The nlminb estimator now uses more iterations.
+
 Changes in Version 0.8:
   - The log determinant is now computer better to be able to include fit measures at higher model complexities
   - The 'return_improper' argument in runmodel( ) now returns improper estimates without trying different starting values

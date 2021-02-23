@@ -10,12 +10,23 @@ runmodel <- function(
   log = TRUE,
   verbose,
   # optimizer = c("default","ucminf","nlminb"),
-  optim.control = list(),
+  optim.control,
   # maxtry = 5,
   analyticFisher = TRUE,
-  return_improper = FALSE
-  # inverseHessian = TRUE
+  warn_improper = TRUE,
+  warn_gradient = TRUE,
+  return_improper = TRUE,
+  bounded = TRUE
 ){
+  if (!missing(optim.control)){
+    warning("'optim.control' is deprecated and will be removed in a future version. Please use setoptimizer(..., optim.args = ...).")
+    x@optim.args <- optim.control
+  }
+  
+  # Set optim args:
+  optim.control <- x@optim.args
+  
+  
   if (missing(verbose)){
     verbose <- x@verbose
   }
@@ -83,7 +94,7 @@ runmodel <- function(
     # Run:
     x@baseline_saturated$saturated <- runmodel(x@baseline_saturated$saturated, addfit = FALSE, addMIs = FALSE, verbose = FALSE,addSEs=FALSE, addInformation = FALSE, analyticFisher = FALSE)
   }
-
+  
   
   # # nlminb control pars:
   # if (optimizer == "nlminb"){
@@ -119,7 +130,7 @@ runmodel <- function(
   #                             "step.min", "step.max",
   #                             "abs.tol", "rel.tol", "x.tol", "xf.tol")]
   
-
+  
   
   # Check if Gradient and hessian are present:
   # if (level == "default"){
@@ -158,7 +169,7 @@ runmodel <- function(
     upper <- upperBound(x)
     
     oldstart <- start
-
+    
     if (verbose) message("Estimating model...")
     # Form optimizer arguments:
     
@@ -170,7 +181,7 @@ runmodel <- function(
       
       
       tryres <- try({
-        x <- psychonetrics_optimizer(x, lower, upper, gsub("cpp_","",optimizer))
+        x <- psychonetrics_optimizer(x, lower, upper, gsub("cpp_","",optimizer), bounded)
       }, silent = TRUE)    
       
       if (is(tryres,"try-error") && !any(is.na(parVector(x)))){
@@ -222,7 +233,7 @@ runmodel <- function(
       optim.control$method <- optimizer
       
       # Add bounds:
-      if (optimizer %in% c("nlminb","L-BFGS-B","lbfgs")){
+      if (optimizer %in% c("nlminb","L-BFGS-B","lbfgs") && bounded){
         
         optim.control$lower <- lower
         optim.control$upper <- upper
@@ -236,12 +247,9 @@ runmodel <- function(
           optim.control$control<- list(eval.max=20000L,
                                        iter.max=10000L,
                                        trace=0L,
-                                       #abs.tol=1e-20, ### important!! fx never negative
-                                       abs.tol=(.Machine$double.eps * 10),
-                                       # rel.tol=1e-10,
-                                       rel.tol=1e-5,
-                                       #step.min=2.2e-14, # in =< 0.5-12
-                                       step.min=1.0, # 1.0 in < 0.5-21
+                                       abs.tol=sqrt(.Machine$double.eps),
+                                       rel.tol=sqrt(.Machine$double.eps),
+                                       step.min=1.0,
                                        step.max=1.0,
                                        x.tol=1.5e-8,
                                        xf.tol=2.2e-14)
@@ -256,7 +264,7 @@ runmodel <- function(
       tryres <- try({
         optim.out <- do.call(optimr_fake,optim.control)
       }, silent = TRUE)    
-
+      
       if (is(tryres,"try-error") || any(is.na(optim.out$par))){
         # Try with emergencystart:
         x <- updateModel(oldstart, x)
@@ -274,7 +282,7 @@ runmodel <- function(
         
       }
       
-    
+      
       optimresults <- optim.out
       optimresults$optimizer <- optimizer
       x@optim <- optimresults
@@ -392,6 +400,8 @@ runmodel <- function(
     x@computed <- TRUE
     # x@objective <- optimresults$value
     
+   
+    
     # Add information:
     # if (!is.null(x@fitfunctions$information)){
     if (addInformation){
@@ -423,7 +433,11 @@ runmodel <- function(
         proper <- all(propers)
       }
       
-      if (!sympd_cpp(x@information) || (!return_improper && !proper)){
+      
+      # If information is not positive definite, try to fix:
+      if (!sympd_cpp(x@information)){
+        
+        # Try to recover using start values:
         if (trystart == 1){
           trystart <- 2
           x <- updateModel(oldstart, x)
@@ -431,15 +445,72 @@ runmodel <- function(
         } else {
           trystart <- 3
           if (return_improper){
-            warning("Information matrix or implied variance-covariance matrix was not positive semi-definite. This can happen because the model is not identified, or because the optimizer encountered problems. Try running the model with a different optimizer using setoptimizer(...).")  
+            if (warn_improper){
+              warning("Information matrix or implied variance-covariance matrix was not positive semi-definite. This can happen because the model is not identified, or because the optimizer encountered problems. Try running the model with a different optimizer using setoptimizer(...).")    
+            }
           } else {
             stop("Information matrix or implied variance-covariance matrix was not positive semi-definite. This can happen because the model is not identified, or because the optimizer encountered problems. Try running the model with a different optimizer using setoptimizer(...).")
           }
         }
         
+        
+      } else if (!proper){
+        # Check for a non-proper computation:
+        
+        # Either return an error or a warning:
+        if (!return_improper){
+          stop("The optimizer encountered at least one non-positive definite matrix and used a pseudoinverse in parameter estimation. To return results anyway, set return_improper = TRUE.")
+        } else{
+          if (warn_improper){
+            warning("The optimizer encountered at least one non-positive definite matrix and used a pseudoinverse in parameter estimation. Results may not be accurate. You could try to check for consistency with a different optimizer using 'setoptimizer'")
+            trystart <- 3
+          }
+          
+        }
+        
+        
       } else {
         trystart <- 3
       }
+      
+      
+      
+      # Check bounds:
+      if (bounded){
+        if (!all(x@parameters$fixed)){
+          if (any(x@parameters$est[!x@parameters$fixed] <= x@parameters$minimum[!x@parameters$fixed] + sqrt(.Machine$double.eps)) ||
+              any(x@parameters$est[!x@parameters$fixed] >= x@parameters$maximum[!x@parameters$fixed] - sqrt(.Machine$double.eps))){
+            
+            # which_wrong <- which(x@parameters$est[!x@parameters$fixed] <= x@parameters$lower[!x@parameters$fixed] + sqrt(.Machine$double.eps) |
+            #                        x@parameters$est[!x@parameters$fixed] >= x@parameters$upper[!x@parameters$fixed] - sqrt(.Machine$double.eps))
+            
+            warning("One or more parameters were estimated to be near its bounds. This may be indicative of, for example, a Heywood case, but also of an optimization problem. Interpret results and fit with great care. For unconstrained estimation, set bounded = FALSE.")
+            
+          }
+          
+        }
+        
+      }
+      # 
+      # if (!sympd_cpp(x@information) || (!return_improper && !proper)){
+      #   if (trystart == 1){
+      #     trystart <- 2
+      #     x <- updateModel(oldstart, x)
+      #     x <- emergencystart(x)
+      #   } else {
+      #     trystart <- 3
+      #     if (return_improper){
+      #       if (warn_improper){
+      #         warning("Information matrix or implied variance-covariance matrix was not positive semi-definite. This can happen because the model is not identified, or because the optimizer encountered problems. Try running the model with a different optimizer using setoptimizer(...).")    
+      #       }
+      #     } else {
+      #       stop("Information matrix or implied variance-covariance matrix was not positive semi-definite. This can happen because the model is not identified, or because the optimizer encountered problems. Try running the model with a different optimizer using setoptimizer(...).")
+      #     }
+      #   }
+      #   
+      # } else {
+      #   trystart <- 3
+      # }
       # if (any(Re(eigen(x@information)$values) < -sqrt(.Machine$double.eps))){
       #   warning("Information matrix is not positive semi-definite. Model might not be identified.")
       # }    
@@ -484,7 +555,14 @@ runmodel <- function(
     # Add log:
     x <- addLog(x, "Evaluated model")    
   }
-
+  
+  # Warn about the gradient?
+  if (warn_gradient){
+    grad <- psychonetrics_gradient(parVector(x),x)
+    if (mean(abs(grad)) > 1){
+      warning("Model might not have converged properly: mean(abs(gradient)) > 1.")
+    }
+  }
   
   
   # Return model:

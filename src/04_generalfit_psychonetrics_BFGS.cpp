@@ -46,7 +46,8 @@ S4 psychonetrics_optimizer(
     S4 model,
     const arma::vec& lower,
     const arma::vec& upper,
-    std::string optimizer = "L-BFGS-B"
+    std::string optimizer = "L-BFGS-B",
+    bool bounded = false
 ) {
   int i;
   
@@ -81,13 +82,28 @@ S4 psychonetrics_optimizer(
   
   // Control pars:
   opt.control.trace = 0; // <- no output
-  opt.control.maxit = 20000; 
-  opt.control.abstol = 1.490116e-08 * 10;
-  opt.control.reltol = 1e-3;
-  opt.control.pgtol = 1e-5;
+  opt.control.maxit = 20000L; 
+  
+  // 
+  // opt.control.abstol = 1.490116e-08; // Same as nlminb
+  // opt.control.reltol = 1.490116e-08; // Same as nlminb
+  // //opt.control.ndeps = ones(nPar);
+  // opt.control.pgtol = 1.490116e-08; // Same as nlminb
+  // opt.control.factr = 0; // Same as nlminb
+  // 
+  // 
+  
+  
+  opt.control.abstol = 1.490116e-08; // Same as nlminb
+  opt.control.reltol = 1.490116e-08; // Same as nlminb
+  opt.control.ndeps = ones(nPar);
+  opt.control.pgtol = 1.490116e-08; // Same as nlminb
+  opt.control.factr = 1.490116e-08; // Same as nlminb
+  
+
   
   // Bounds:
-  if (optimizer == "L-BFGS-B"){
+  if (optimizer == "L-BFGS-B" && bounded){
     opt.set_lower(lower);
     opt.set_upper(upper);    
   }
@@ -106,8 +122,10 @@ S4 psychonetrics_optimizer(
     Named("message") = opt.message(),
       Named("value") = opt.value(),
       Named("fncount") = opt.fncount(),
-      Named("grcount") = opt.grcount()
+      Named("grcount") = opt.grcount(),
+      Named("optimizer") = optimizer
     );
+    
     
     // Update model:
     model = updateModel_cpp(x,model,false);
