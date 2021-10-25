@@ -55,8 +55,8 @@ tsData <- function(data,
   # Add beepvar:
   if (is.null(beepvar)){
     beepvar <- "BEEP"
-    data <- data %>% dplyr::group_by_(dayvar,idvar) %>% 
-      dplyr::mutate_(BEEP = ~seq_len(n()))
+    data <- data %>% dplyr::group_by(.data[[dayvar]],.data[[idvar]]) %>% 
+      dplyr::mutate(BEEP = seq_len(n()))
   }
   
   # Vars:
@@ -75,13 +75,13 @@ tsData <- function(data,
   
   
   # Obtain person specific means:
-  MeansData <- data %>% dplyr::group_by_(idvar) %>% dplyr::summarise_at(funs(mean(.,na.rm=TRUE)),.vars = vars)
+ MeansData <- data %>% dplyr::group_by(.data[[idvar]]) %>% dplyr::summarise_at(funs(mean(.,na.rm=TRUE)),.vars = vars)
   
   # Within-person center:
   if (centerWithin){
     # Only if N > 1 (very minimal floating point error can lead to different layout to older version otherwise)
     if (length(unique(data[[idvar]])) > 1){
-      data <- data %>% dplyr::group_by_(idvar) %>% dplyr::mutate_at(funs(scale(.,center=TRUE,scale=FALSE)),.vars = vars)          
+      data <- data %>% dplyr::group_by(.data[[idvar]]) %>% dplyr::mutate_at(funs(scale(.,center=TRUE,scale=FALSE)),.vars = vars)         
     }
   }
 
@@ -89,37 +89,50 @@ tsData <- function(data,
   # Augment the data
   augData <- data
   
-  # Add missing rows for missing beeps
-  beepsPerDay <-  eval(substitute(dplyr::summarize_(data %>% group_by_(idvar,dayvar), 
-                                                    first = ~ min(beepvar,na.rm=TRUE),
-                                                    last = ~ max(beepvar,na.rm=TRUE)), 
-                                  list(beepvar = as.name(beepvar))))
+ 
   
-  # all beeps (with one extra beep before each measurement of the first day:
-  allBeeps <- expand.grid(unique(data[[idvar]]),unique(data[[dayvar]]),seq(min(data[[beepvar]],na.rm=TRUE)-1,max(data[[beepvar]],na.rm=TRUE))) 
+  # Check for errors in data:
+  beepsummary <- data %>% group_by(.data[[idvar]],.data[[dayvar]],.data[[beepvar]]) %>% tally
+  if (any(beepsummary$n!=1)){
+    print_and_capture <- function(x)
+    {
+      paste(capture.output(print(x)), collapse = "\n")
+    }
+    
+    warning(paste0("Some beeps are recorded more than once! Results are likely unreliable.\n\n",print_and_capture(
+      beepsummary %>% filter(.data[["n"]]!=1) %>% select(.data[[idvar]],.data[[dayvar]],.data[[beepvar]]) %>% as.data.frame
+    )))
+  }
+  
+  beepsPerDay <-  dplyr::summarize(data %>% group_by(.data[[idvar]],.data[[dayvar]]), 
+                                                    first = min(.data[[beepvar]],na.rm=TRUE),
+                                                    last = max(.data[[beepvar]],na.rm=TRUE))
+ 
+  # all beeps:
+  allBeeps <- expand.grid(unique(data[[idvar]]),unique(data[[dayvar]]),seq(min(data[[beepvar]],na.rm=TRUE),max(data[[beepvar]],na.rm=TRUE))) 
   names(allBeeps) <- c(idvar,dayvar,beepvar)
   
   # Left join the beeps per day:
-  allBeeps <- eval(substitute({
-    allBeeps %>% dplyr::left_join(beepsPerDay, by = c(idvar,dayvar)) %>% 
-      # dplyr::group_by_(idvar,dayvar) %>% dplyr::filter_(~BEEP >= first, ~BEEP <= last)%>%
-      dplyr::group_by_(idvar,dayvar) %>% dplyr::filter_(~BEEP >= first-1, ~BEEP <= last)%>%
-      dplyr::arrange_(idvar,dayvar,beepvar)
-  },  list(BEEP = as.name(beepvar))))
-
+  allBeeps <- allBeeps %>% dplyr::left_join(beepsPerDay, by = c(idvar,dayvar)) %>% 
+      dplyr::group_by(.data[[idvar]],.data[[dayvar]]) %>% dplyr::filter(.data[[beepvar]] >= .data$first, .data[[beepvar]] <= .data$last)%>%
+      dplyr::arrange(.data[[idvar]],.data[[dayvar]],.data[[beepvar]])
+  
   
   # Enter NA's:
-  augData <- augData %>% dplyr::right_join(allBeeps, by = c(idvar,dayvar,beepvar))
+  augData <- augData %>% dplyr::right_join(allBeeps, by = c(idvar,dayvar,beepvar)) %>%
+    arrange(.data[[idvar]],.data[[dayvar]],.data[[beepvar]])
   
   # Obtain data_c (slice away first row per day/subject):
-  data_c <- augData %>% ungroup %>% dplyr::select_(.dots = vars)#  %>% dplyr::group_by_(idvar,dayvar) %>% dplyr::slice(-1)
+  data_c <- augData %>% ungroup %>% dplyr::select(all_of(vars))
   
   # Lagged datasets:
   data_l <- do.call(cbind,lapply(lags, function(l){
-    data_lagged <- augData %>% dplyr::group_by_(idvar,dayvar) %>% dplyr::mutate_at(funs(shift),.vars = vars) %>% ungroup %>% dplyr::select_(.dots=vars)
+    data_lagged <- augData %>% dplyr::group_by(.data[[idvar]],.data[[dayvar]]) %>% dplyr::mutate_at(funs(shift),.vars = vars) %>% ungroup %>% dplyr::select(all_of(vars))
     names(data_lagged) <- paste0(vars,"_lag",l)
     data_lagged
   }))
+
+  
   
   # Remove missing (full row):
   isNA <- rowSums(is.na(data_c)) == ncol(data_c)
@@ -130,7 +143,7 @@ tsData <- function(data,
   fulldata <- as.data.frame(cbind(data_l,data_c))
   return(fulldata)
   
-  # data_l <- augData %>% dplyr::group_by_(idvar,dayvar) %>% dplyr::slice(-n())
+
 # 
 #   
   # # Remove rows with missings:
