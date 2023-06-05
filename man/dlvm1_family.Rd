@@ -36,9 +36,11 @@ dlvm1(data, vars, lambda, within_latent = c("cov", "chol",
                     estimator = "ML", optimizer, storedata = FALSE,
                     verbose = FALSE, sampleStats)
 
-panelgvar(data, vars, ...)
+panelgvar(data, vars, within_latent = c("ggm","chol","cov","prec"), 
+          between_latent = c("ggm","chol","cov","prec"), ...)
 
-panelvar(data, vars, ...)
+panelvar(data, vars, within_latent = c("cov","chol","prec","ggm"), 
+          between_latent = c("cov","chol","prec","ggm"), ...)
 
 panel_lvgvar(...)
 }

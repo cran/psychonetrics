@@ -35,7 +35,8 @@ var1 <- function(
   covtype = c("choose","ML","UB"),
   standardize = c("none","z","quantile"),
   sampleStats,
-  verbose=FALSE
+  verbose=FALSE,
+  bootstrap = FALSE
 ){
   contemporaneous <- match.arg(contemporaneous)
   
@@ -56,6 +57,11 @@ var1 <- function(
   
   # If data is not missing, make augmented data:
   data <- tsData(data, vars = vars2, beepvar = beepvar, dayvar = dayvar, idvar = idvar, groupvar = groups)
+  
+  # Bootstrap:
+  if (bootstrap){
+    data <- data[sample(seq_len(nrow(data)),nrow(data),TRUE),]
+  }
   
   # Extract var names:
   if (is.null(groups)){
@@ -223,10 +229,10 @@ var1 <- function(
     D2 = psychonetrics::duplicationMatrix(nNode), # non-strict duplciation matrix
     L = psychonetrics::eliminationMatrix(nNode), # Elinimation matrix
     Dstar = psychonetrics::duplicationMatrix(nNode,diag = FALSE), # Strict duplicaton matrix
-    In = as(diag(nNode),"dgCMatrix"), # Identity of dim n
-    In2 = as(diag(nNode),"dgCMatrix"), # Identity of dim n^2
+    In = as(diag(nNode),"dMatrix"), # Identity of dim n
+    In2 = as(diag(nNode),"dMatrix"), # Identity of dim n^2
     A = psychonetrics::diagonalizationMatrix(nNode),
-    C = as(lavaan::lav_matrix_commutation(nNode,nNode),"dgCMatrix")
+    C = as(lavaan::lav_matrix_commutation(nNode,nNode),"dMatrix")
     # P=P # Permutation matrix
   )
   
@@ -244,7 +250,7 @@ var1 <- function(
     # P <- bdiag(Diagonal(nNode*2),sparseMatrix(j=seq_along(inds),i=inds))
     model@extramatrices$P <- bdiag(Diagonal(nNode*2),sparseMatrix(j=seq_along(inds),i=order(inds)))
 
-    model@extramatrices$P <- as(model@extramatrices$P, "dgCMatrix")
+    model@extramatrices$P <- as(model@extramatrices$P, "dMatrix")
     
   
   # Form the model matrices
@@ -286,6 +292,8 @@ var1 <- function(
                                                    estimator = estimator,
                                                    baseline_saturated = FALSE,
                                                    sampleStats = sampleStats)
+    
+
     
     # if not FIML, Treat as computed:
     if (estimator != "FIML"){
