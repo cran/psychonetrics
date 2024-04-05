@@ -1,6 +1,6 @@
-09c2a21ed2a0ef0166156e2ed4276975 *DESCRIPTION
+ed9e05ba35373c51707f7d6a5a84dbbe *DESCRIPTION
 b3560ca6c4a4932bb07faad52d4fba26 *NAMESPACE
-a3512bbcc29a69be1428cacd5f47798b *NEWS
+0bd8bd0a8d87f371df9b8842d71eb826 *NEWS
 d66e834f4a8b2c210354e96f6b594713 *R/00_codeOrganization.R
 39edb48d7703de9a0e4b8b66485cd068 *R/00_steps_to_implement_distribution.R
 23cbf9e2c44d1fc02a92c00e7e0d9d9d *R/00_steps_to_implement_estimator.R
@@ -50,7 +50,7 @@ f9a0104886fd31df32e5018d5f00c4e8 *R/03_modelformation_matrixSetup_omega.R
 3ab42004e6cda5df4d3cdd41fb95546f *R/03_modelformation_missingpatterns.R
 6727f34fa8b7d52f185a9ca2d637b034 *R/03_modelformation_missingpatterns_covs.R
 6c592e9984a8c9ad9c34434291b862df *R/03_modelformation_samplestats.R
-f50fdf42f1821feda2d698de564f686c *R/03_modelformation_samplestats_norawts.R
+6a6031fb7148bfdcdc1863c7bd82de1a *R/03_modelformation_samplestats_norawts.R
 7c297250ded8c8d710c926d354a37f3a *R/03_modelformation_samplestats_rawts.R
 9678af1fd2df63122d0b0afc1415b819 *R/03_modelformation_sparseordense.R
 dd9ea5a3383d18de3ba20a6dc306a15d *R/03_modelformation_startvaluesandbounds.R
@@ -186,7 +186,7 @@ f6cebf8da969167611240c80872c2723 *R/f_convenience_residuals.R
 19f9a5d930f3c9d9cb8488eeff243931 *R/f_convenience_simplestructure.R
 c203c68dd6e3b9e9b9ccf2b906469c8d *R/g_simulations_replicator.R
 132e5f20bdc3935bdfffd0091eb85597 *R/h_modelsearch.R
-f92793f31a1a3d9b6a823d35eb239b5d *build/partial.rdb
+c4c5cd559d908dd6a50b225361519da4 *build/partial.rdb
 bba76558187797b5d2b18ad3a26cde87 *data/Jonas.RData
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
 10a156ce8973104fd67c78ff382378f2 *man/CIplot.Rd
