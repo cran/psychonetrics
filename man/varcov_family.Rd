@@ -14,15 +14,15 @@ This is the family of models that models only a variance-covariance matrix with 
 }
 \usage{
 varcov(data, type = c("cov", "chol", "prec", "ggm", "cor"),
-                    sigma = "full", kappa = "full", omega = "full",
-                    lowertri = "full", delta = "full", rho = "full", SD =
-                    "full", mu, tau, vars, ordered = character(0), groups,
-                    covs, means, nobs, missing = "listwise", equal =
-                    "none", baseline_saturated = TRUE, estimator =
-                    "default", optimizer, storedata = FALSE, WLS.W,
-                    sampleStats, meanstructure, corinput, verbose = FALSE,
-                    covtype = c("choose", "ML", "UB"), standardize =
-                    c("none", "z", "quantile"), fullFIML = FALSE)
+                   sigma = "full", kappa = "full", omega = "full",
+                   lowertri = "full", delta = "diag", rho = "full", SD =
+                   "full", mu, tau, vars, ordered = character(0), groups,
+                   covs, means, nobs, missing = "listwise", equal =
+                   "none", baseline_saturated = TRUE, estimator =
+                   "default", optimizer, storedata = FALSE, WLS.W,
+                   sampleStats, meanstructure, corinput, verbose = FALSE,
+                   covtype = c("choose", "ML", "UB"), standardize =
+                   c("none", "z", "quantile"), fullFIML = FALSE)
 cholesky(\dots)
 precision(\dots)
 prec(\dots)
@@ -38,25 +38,25 @@ A data frame encoding the data used in the analysis. Can be missing if \code{cov
 The type of model used. See description.
 }
   \item{sigma}{
-Only used when \code{type = "cov"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "cov"}. Either \code{"full"} to estimate every element freely, \code{"diag"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{kappa}{
-Only used when \code{type = "prec"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "prec"}. Either \code{"full"} to estimate every element freely, \code{"diag"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{omega}{
-Only used when \code{type = "ggm"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "ggm"}. Either \code{"full"} to estimate every element freely, \code{"zero"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{lowertri}{
-Only used when \code{type = "chol"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "chol"}. Either \code{"full"} to estimate every element freely, \code{"diag"} to only include diagonal elements, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
 \item{delta}{
-Only used when \code{type = "ggm"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "ggm"}. Either \code{"diag"} or \code{"zero"} (not recommended), or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
 \item{rho}{
-Only used when \code{type = "cor"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "cor"}. Either \code{"full"} to estimate every element freely, \code{"zero"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
 \item{SD}{
-Only used when \code{type = "cor"}. Either \code{"full"} to estimate every element freely, \code{"empty"} to set all elements to zero, or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{type = "cor"}. Either \code{"diag"} or \code{"zero"} (not recommended), or a matrix of the dimensions node x node with 0 encoding a fixed to zero element, 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{mu}{
 Optional vector encoding the mean structure. Set elements to 0 to indicate fixed to zero constrains, 1 to indicate free means, and higher integers to indicate equality constrains. For multiple groups, this argument can be a list or array with each element/column encoding such a vector.
@@ -201,7 +201,7 @@ CIplot(mod_saturated,  "omega", labels = labels, labelstart = 0.2)
 
 \donttest{
 # We can also fit an empty network:
-mod0 <- ggm(ConsData, vars = vars, omega = "empty")
+mod0 <- ggm(ConsData, vars = vars, omega = "zero")
 
 # Run the model:
 mod0 <- mod0 \%>\% runmodel

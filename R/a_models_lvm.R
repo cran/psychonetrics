@@ -6,21 +6,21 @@ lvm <- function(
   residual = c("cov","chol","prec","ggm"),
   
   # Latent matrices:
-  sigma_zeta = "full", # (only lower tri is used) "empty", "full" or kappa structure, array (nvar * nvar * ngroup). NA indicates free, numeric indicates equality constraint, numeric indicates constraint
+  sigma_zeta = "full",
   kappa_zeta = "full", # Precision
   omega_zeta = "full", # Partial correlations
   lowertri_zeta = "full", # Cholesky
   delta_zeta = "full", # Used for both ggm and pcor
   
   # Residual matrices:
-  sigma_epsilon = "empty", # (only lower tri is used) "empty", "full" or kappa structure, array (nvar * nvar * ngroup). NA indicates free, numeric indicates equality constraint, numeric indicates constraint
-  kappa_epsilon = "empty", # Precision
-  omega_epsilon = "empty", # Partial correlations
-  lowertri_epsilon = "empty", # Cholesky
-  delta_epsilon = "empty", # Used for both ggm and pcor
+  sigma_epsilon = "diag", # 
+  kappa_epsilon = "diag", # Precision
+  omega_epsilon = "zero", # Partial correlations
+  lowertri_epsilon = "diag", # Cholesky
+  delta_epsilon = "diag", # Used for both ggm and pcor
   
   # Beta:
-  beta = "empty",
+  beta = "zero",
   
   # Mean structure:
   nu,
@@ -155,12 +155,12 @@ lvm <- function(
                                     expmeans = lapply(seq_len(nGroup),function(x)rep(0,nLatent)), sampletable = sampleStats, name = "nu_eta")
   
    # Setup lambda:
-  modMatrices$lambda <- matrixsetup_lambda(lambda, expcov=model@sample@covs, nGroup = nGroup, 
+  modMatrices$lambda <- matrixsetup_lambda(lambda, expcov=model@sample@covs, nGroup = nGroup, equal = "lambda" %in% equal,
                                            observednames = sampleStats@variables$label, latentnames = latents, 
                                            sampletable = sampleStats, identification = identification, simple = simplelambdastart)
   
   # Setup beta:
-  modMatrices$beta <- matrixsetup_beta(beta, nNode = nLatent, nGroup = nGroup, labels = latents, sampletable = sampleStats)
+  modMatrices$beta <- matrixsetup_beta(beta, nNode = nLatent, nGroup = nGroup, labels = latents, sampletable = sampleStats, equal = "beta" %in% equal)
   
   # Compute the expected latent and residual cov matrices:
   expLatSigma <- lapply(1:nGroup,function(x)matrix(0,nLatent,nLatent))
@@ -370,7 +370,7 @@ lvm <- function(
     # Form baseline model:
     model@baseline_saturated$baseline <- varcov(data,
                                                 type = "chol",
-                                                lowertri = "empty",
+                                                lowertri = "diag",
                                              vars = vars,
                                              groups = groups,
                                              covs = covs,

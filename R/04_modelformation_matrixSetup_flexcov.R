@@ -7,7 +7,8 @@ matrixsetup_flexcov <- function(
   nNode,
   expCov,
   nGroup,
-  labels
+  labels,
+  lassofix = TRUE
 ){
   modMatrices <- list()
   
@@ -31,6 +32,7 @@ matrixsetup_flexcov <- function(
                                                       labels = labels,
                                                       equal = mat %in% equal, sampletable = sampleStats)
   } else if (type == "ggm"){
+
     mat <- paste0("omega_",name)
     # Add omega matrix:
     modMatrices[[mat]] <- matrixsetup_omega(omega, 
@@ -39,7 +41,8 @@ matrixsetup_flexcov <- function(
                                                 nNode = nNode, 
                                                 nGroup = nGroup, 
                                                 labels = labels,
-                                                equal = mat  %in% equal, sampletable = sampleStats)
+                                                equal = mat  %in% equal, sampletable = sampleStats,
+                                            lassofix=lassofix)
     
     # Add delta matrix:
     matDelta <- paste0("delta_",name)
@@ -60,7 +63,8 @@ matrixsetup_flexcov <- function(
                                                 nNode = nNode, 
                                                 nGroup = nGroup, 
                                                 labels = labels,
-                                                equal = mat %in% equal, sampletable = sampleStats)
+                                                equal = mat %in% equal, sampletable = sampleStats,
+                                            lassofix=lassofix)
   }
   modMatrices
 }

@@ -12,29 +12,32 @@ This is the family of models that models a dynamic factor model on panel data. T
 }
 \usage{
 dlvm1(data, vars, lambda, within_latent = c("cov", "chol",
-                    "prec", "ggm"), within_residual = c("cov", "chol",
-                    "prec", "ggm"), between_latent = c("cov", "chol",
-                    "prec", "ggm"), between_residual = c("cov", "chol",
-                    "prec", "ggm"), beta = "full", omega_zeta_within =
-                    "full", delta_zeta_within = "full", kappa_zeta_within
-                    = "full", sigma_zeta_within = "full",
-                    lowertri_zeta_within = "full", omega_epsilon_within =
-                    "empty", delta_epsilon_within = "empty",
-                    kappa_epsilon_within = "empty", sigma_epsilon_within =
-                    "empty", lowertri_epsilon_within = "empty",
-                    omega_zeta_between = "full", delta_zeta_between =
-                    "full", kappa_zeta_between = "full",
-                    sigma_zeta_between = "full", lowertri_zeta_between =
-                    "full", omega_epsilon_between = "empty",
-                    delta_epsilon_between = "empty", kappa_epsilon_between
-                    = "empty", sigma_epsilon_between = "empty",
-                    lowertri_epsilon_between = "empty", nu, mu_eta,
-                    identify = TRUE, identification = c("loadings",
-                    "variance"), latents, groups, covs, means, nobs,
-                    covtype = c("choose", "ML", "UB"), missing =
-                    "listwise", equal = "none", baseline_saturated = TRUE,
-                    estimator = "ML", optimizer, storedata = FALSE,
-                    verbose = FALSE, sampleStats)
+                   "prec", "ggm"), within_residual = c("cov", "chol",
+                   "prec", "ggm"), between_latent = c("cov", "chol",
+                   "prec", "ggm"), between_residual = c("cov", "chol",
+                   "prec", "ggm"), beta = "full", omega_zeta_within =
+                   "full", delta_zeta_within = "diag", kappa_zeta_within
+                   = "full", sigma_zeta_within = "full",
+                   lowertri_zeta_within = "full", omega_epsilon_within =
+                   "zero", delta_epsilon_within = "diag",
+                   kappa_epsilon_within = "diag", sigma_epsilon_within =
+                   "diag", lowertri_epsilon_within = "diag",
+                   omega_zeta_between = "full", delta_zeta_between =
+                   "diag", kappa_zeta_between = "full",
+                   sigma_zeta_between = "full", lowertri_zeta_between =
+                   "full", omega_epsilon_between = "zero",
+                   delta_epsilon_between = "diag", kappa_epsilon_between
+                   = "diag", sigma_epsilon_between = "diag",
+                   lowertri_epsilon_between = "diag", nu, mu_eta,
+                   identify = TRUE, identification = c("loadings",
+                   "variance"), latents, groups, covs, means, nobs, start
+                   = "version2", covtype = c("choose", "ML", "UB"),
+                   missing = "listwise", equal = "none",
+                   baseline_saturated = TRUE, estimator = "ML",
+                   optimizer, storedata = FALSE, verbose = FALSE,
+                   sampleStats, baseline =
+                   c("stationary_random_intercept", "stationary",
+                   "independence", "none"))
 
 panelgvar(data, vars, within_latent = c("ggm","chol","cov","prec"), 
           between_latent = c("ggm","chol","cov","prec"), ...)
@@ -68,67 +71,67 @@ The type of between-person latent model to be used.
 The type of between-person residual model to be used.
 }
   \item{beta}{
-A model matrix encoding the temporal relationships (transpose of temporal network). A 0 encodes a fixed to zero element, a 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix. Can also be \code{"full"} for a full temporal network or \code{"empty"} for an empty temporal network.
+A model matrix encoding the temporal relationships (transpose of temporal network). A 0 encodes a fixed to zero element, a 1 encoding a free to estimate element, and higher integers encoding equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix. Can also be \code{"full"} for a full temporal network or \code{"zero"} for an empty temporal network.
 }
   \item{omega_zeta_within}{
-Only used when \code{within_latent = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_latent = "ggm"}. Can be \code{"full"}, \code{"zero"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{delta_zeta_within}{
-Only used when \code{within_latent = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_latent = "ggm"}. Can be \code{"diag"}, \code{"zero"} (not recommended), or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{kappa_zeta_within}{
-Only used when \code{within_latent = "prec"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_latent = "prec"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{sigma_zeta_within}{
-Only used when \code{within_latent = "cov"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_latent = "cov"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{lowertri_zeta_within}{
-Only used when \code{within_latent = "chol"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_latent = "chol"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{omega_epsilon_within}{
-Only used when \code{within_residual = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_residual = "ggm"}. Can be \code{"full"}, \code{"zero"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{delta_epsilon_within}{
-Only used when \code{within_residual = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_residual = "ggm"}. Can be \code{"diag"}, \code{"zero"} (not recommended), or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{kappa_epsilon_within}{
-Only used when \code{within_residual = "prec"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_residual = "prec"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{sigma_epsilon_within}{
-Only used when \code{within_residual = "cov"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_residual = "cov"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{lowertri_epsilon_within}{
-Only used when \code{within_residual = "chol"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{within_residual = "chol"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{omega_zeta_between}{
-Only used when \code{between_latent = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_latent = "ggm"}. Can be \code{"full"}, \code{"zero"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{delta_zeta_between}{
-Only used when \code{between_latent = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_latent = "ggm"}. Can be \code{"diag"}, \code{"zero"} (not recommended), or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{kappa_zeta_between}{
-Only used when \code{between_latent = "prec"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_latent = "prec"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{sigma_zeta_between}{
-Only used when \code{between_latent = "cov"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_latent = "cov"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{lowertri_zeta_between}{
-Only used when \code{between_latent = "chol"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_latent = "chol"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{omega_epsilon_between}{
-Only used when \code{between_residual = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_residual = "ggm"}. Can be \code{"full"}, \code{"zero"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{delta_epsilon_between}{
-Only used when \code{between_residual = "ggm"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_residual = "ggm"}. Can be \code{"diag"}, \code{"zero"} (not recommended), or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{kappa_epsilon_between}{
-Only used when \code{between_residual = "prec"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_residual = "prec"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{sigma_epsilon_between}{
-Only used when \code{between_residual = "cov"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_residual = "cov"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{lowertri_epsilon_between}{
-Only used when \code{between_residual = "chol"}. Can be \code{"full"}, \code{"empty"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
+Only used when \code{between_residual = "chol"}. Can be \code{"full"}, \code{"diag"}, or a typical model matrix with 0s indicating parameters constrained to zero, 1s indicating free parameters, and higher integers indicating equality constrains. For multiple groups, this argument can be a list or array with each element/slice encoding such a matrix.
 }
   \item{nu}{
 Optional vector encoding the intercepts of the observed variables. Set elements to 0 to indicate fixed to zero constrains, 1 to indicate free intercepts, and higher integers to indicate equality constrains. For multiple groups, this argument can be a list or array with each element/column encoding such a vector.
@@ -157,6 +160,7 @@ A vector of sample means, or a list/matrix containing such vectors for multiple 
   \item{nobs}{
 The number of observations used in \code{covs} and \code{means}, or a vector of such numbers of observations for multiple groups.
 }
+\item{start}{Start value specification. Can be either a string or a psychonetrics model. If it is a string, \code{"version2"} indicates the latest version of start value computation, \code{"version1"} indicates start values as they were computed up to version 0.11, and \code{"simple"} indicate simple starting values. If this is a psychonetrics model the starting values will be based on the ouptut. This can be useful, for example, if you first estimate a model with matrices set to a Cholesky decomposition, then use those values as start values for estimating Gaussian graphical models.}
   \item{missing}{
 How should missingness be handled in computing the sample covariances and number of observations when \code{data} is used. Can be \code{"listwise"} for listwise deletion, or \code{"pairwise"} for pairwise deletion.
 }
@@ -184,6 +188,7 @@ An optional sample statistics object. Mostly used internally.
 \item{covtype}{
   If 'covs' is used, this is the type of covariance (maximum likelihood or unbiased) the input covariance matrix represents. Set to \code{"ML"} for maximum likelihood estimates (denominator n) and \code{"UB"} to unbiased estimates (denominator n-1). The default will try to find the type used, by investigating which is most likely to result from integer valued datasets.
 }
+\item{baseline}{What baseline model should be used? \code{"stationary_random_intercept"} includes both within- and between person variances constrained equal across time (default), \code{"stationary"} only includes within-person variances constrained equal across time, \code{"independence"} (default up to version 0.11) includes a variance for every variable at every time point (not constrained equal across time), and \code{"none"} includes no baseline model.}
 \item{\dots}{
 Arguments sent to \code{dlvm1}.
 }

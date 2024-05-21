@@ -2,11 +2,20 @@
 useDynLib(psychonetrics, .registration = TRUE)
 
 
+export(logbook)
+
 importFrom("grDevices", "rgb")
     importFrom("stats", "quantile")
     importFrom("utils", "capture.output")
 
 importFrom(rlang, .data)
+
+export(fixstart)
+
+export(checkJacobian)
+export(checkJacobian)
+export(checkFisher)
+export(transmod)
 
 export(CIplot)
 export(emergencystart)
@@ -49,6 +58,8 @@ S3method(plot, esa_manual)
 S3method(print, esa)
 S3method(print, esa_manual)
 S3method(print, psychonetrics_compare)
+
+S3method(print, psychonetrics_log)
 
 import(IsingSampler)
 
@@ -142,7 +153,7 @@ export(parameters)
 export(duplicationMatrix, eliminationMatrix, diagonalizationMatrix)
 
 # export Classes
-exportClasses("psychonetrics" )
+exportClasses("psychonetrics","psychonetrics_log")
 #exportClasses("psychonetrics_samplestats","psychonetrics_log","psychonetrics" )
 
 # export Methods

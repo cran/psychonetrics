@@ -1,14 +1,15 @@
 matrixsetup_omega <- function(
-  omega, # sigma argument
-  nNode, # Number of nodes
-  nGroup, # Number of groups
-  expcov, # Expected covariance matrices (list).
-  labels,
-  equal = FALSE,
-  sampletable,
-  name = "omega",
-  beta = array(0, c(nNode, nNode,nGroup)),
-  onlyStartSign = FALSE
+    omega, # sigma argument
+    nNode, # Number of nodes
+    nGroup, # Number of groups
+    expcov, # Expected covariance matrices (list).
+    labels,
+    equal = FALSE,
+    sampletable,
+    name = "omega",
+    beta = array(0, c(nNode, nNode,nGroup)),
+    onlyStartSign = FALSE,
+    lassofix = TRUE 
 ){
   
   # Check if sigma is character:
@@ -21,19 +22,26 @@ matrixsetup_omega <- function(
   # For each group, form starting values:
   omegaStart <- omega
   for (g in 1:nGroup){
-
+    
+    # If nNode == 1 just skip:
+    if (nNode == 1){
+      omegaStart[,,g] <- 0
+      next
+    }
+    
     # Current estimate:
     covest <- as.matrix(expcov[[g]])
-
-
+    
+    
     if (!any(is.na(covest))){
       
       zeroes <- which(omegaStart[,,g]==0 & t(omegaStart[,,g])==0 & diag(nNode) != 1,arr.ind=TRUE)
       if (nrow(zeroes) == 0){
         wi <- solve_symmetric_cpp_matrixonly(covest)
         pcor <- qgraph::wi2net(as.matrix(wi))
+        
         # FIXME: Quick check, if there is an outrageous starting value, use glasso with lasso instead:
-        if (any(is.na(pcor)) || any(abs(pcor) > 0.8)){
+        if (lassofix && (any(is.na(pcor)) || any(abs(pcor) > 0.8))){
           wi <- glasso(as.matrix(spectralshift(covest)), rho = 0.1)$wi
           pcor <-  qgraph::wi2net(as.matrix(wi))
         }
@@ -47,7 +55,9 @@ matrixsetup_omega <- function(
       
       # Network starting values:
       omegaStart[,,g] <- as.matrix(pcor)
-      diag(omegaStart[,,g] ) <- 0
+      diag(omegaStart[,,g] ) <- 0  
+      
+      
       
       
     } else {
@@ -72,7 +82,7 @@ matrixsetup_omega <- function(
     }
     
   }
-  
+
   # Form the model matrix part:
   list(omega,
        mat =  name,
