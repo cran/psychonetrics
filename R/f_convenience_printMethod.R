@@ -3,6 +3,12 @@
 setMethod(f = "show",
  signature = "psychonetrics",
 definition = function(object){
+  
+  # Bootstrap warning:
+  if (object@sample@bootstrap){
+    boot_warning()
+  }
+  
     # version:
   version <- read.dcf(file=system.file("DESCRIPTION", package="psychonetrics"),
                                   fields="Version")
