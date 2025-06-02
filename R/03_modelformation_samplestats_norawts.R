@@ -144,6 +144,16 @@ samplestats_norawts <- function(
     # Remove all rows with full missing:
     data <- data[rowSums(is.na(data[,vars])) < nVars,]
     
+    ### Bootstrap the data ###
+    
+    if (isTRUE(bootstrap)){
+      
+      data <- data[sample(seq_len(nrow(data)), round(boot_sub*nrow(data)), replace = boot_resample),]
+      
+    }
+    
+    ###
+    
     # Standardize the data:
     if (standardize == "z"){
       for (v in seq_along(vars)){
@@ -184,15 +194,7 @@ samplestats_norawts <- function(
       needWLSV <- FALSE
     }
     
-    ### Bootstrap the data ###
-    
-    if (isTRUE(bootstrap)){
-      
-      data <- data[sample(seq_len(nrow(data)), round(boot_sub*nrow(data)), replace = boot_resample),]
-      
-    }
-    
-    ###
+   
     
     # Create covs and means arguments:
     if (nGroup == 1){
@@ -233,6 +235,12 @@ samplestats_norawts <- function(
         cov <- (nrow(data[,c(vars)])-1)/(nrow(data[,c(vars)])) * cov(data[,c(vars)], use = switch(
           missing, "listwise" = "complete.obs", "pairwise" = "pairwise.complete.obs"
         ))
+        
+        # For n=1, make the covariances 0:
+        if (nrow(data)==1){
+          cov[is.na(cov)] <- 0
+        }
+        
         cov <- 0.5*(cov + t(cov))
         
         if (any(is.na(cov))){
@@ -527,7 +535,6 @@ samplestats_norawts <- function(
   
   # Determine corinput (will also detect if standardized data was used as input):
   if (missing(corinput)){
-    
     if (all(
       sapply(covs,function(x){
         all(abs(diag(x) - 1) < sqrt(.Machine$double.eps))

@@ -1,6 +1,6 @@
-bd76a4381745525ea6e2043cc2b32e73 *DESCRIPTION
-3701c6457681ce18fce518c5744fa5d3 *NAMESPACE
-799da0e077641622dd48eeb24d535515 *NEWS
+3eaa4b24162be31983c7b3d7833fae31 *DESCRIPTION
+4c7685212d4cd7ae84bb585f2a5db583 *NAMESPACE
+a27d049870384df715aa122186a6fa00 *NEWS
 264c2b1ff1a8ebc61f56566640467467 *R/00_codeOrganization.R
 121dd8fac49ef700ccd25a5d08c5e075 *R/00_steps_to_implement_distribution.R
 9de9f1ba4424648808bc6f5a89c01bba *R/00_steps_to_implement_estimator.R
@@ -51,7 +51,7 @@ e5deea9fe23f6f3c1e972fcbcb53305f *R/03_modelformation_matrixSetup_mu.R
 a7303cdf2a53beab5c2fd808bcff263b *R/03_modelformation_missingpatterns.R
 8a7e4b380ce856dfe6fbb70ff60cf5d0 *R/03_modelformation_missingpatterns_covs.R
 c1f6feeb03dcdee3d0e37851fa008030 *R/03_modelformation_samplestats.R
-c80fa50a63fa08149459ae4027fb5112 *R/03_modelformation_samplestats_norawts.R
+736fc6b73ac6c14e761ac57738fcc1a2 *R/03_modelformation_samplestats_norawts.R
 38f675e594d582af2277f861d354c04e *R/03_modelformation_samplestats_rawts.R
 1e09ab4457ec804f4f8083e1a316ebfb *R/03_modelformation_sparseordense.R
 61d826d66567622132a0d482b18e63d4 *R/03_modelformation_startvaluesandbounds.R
@@ -110,7 +110,7 @@ dd62aba82a9ae6a3bea2182ad4c5781a *R/19_tsdlvm1_identify.R
 60dd68771cfd66d558ec2bfbc3050540 *R/20_meta_varcov_prepare.R
 10ed5d9d6399665ee5341a6920dec9dd *R/21_Ising_derivatives.R
 272b8923ffa5dd1ea3e07cbde0cbdc5f *R/21_Ising_helperfunctions.R
-0596a65f9d84c99abfe5d8c7839ecfdc *R/21_Ising_identify.R
+63afa034f77864340e74a624bcddd814 *R/21_Ising_identify.R
 1a5690f702ea98b726ca15c6ed7d68c3 *R/21_Ising_implied.R
 d18d9863deeda6cc51958c1321a50517 *R/21_Ising_prepare.R
 61aa6d43636fc94296b843b6d1690f0c *R/22_ml_lvm_derivatives.R
@@ -122,7 +122,7 @@ b87aa689a35c589d5980f63c5cbab3a0 *R/RcppExports.R
 8aae952a8f40532dab328d6a0908514c *R/a_models_bifactor.R
 db377b9cf22d865c4d9e83a302cbc7bc *R/a_models_cholesky.R
 df49a69fa9c988d5ab83668bb50fa91c *R/a_models_corr.R
-3d1d5e3e601e66bff3b5edd673e6702e *R/a_models_dlvm1.R
+8da9c6259fe914b1f119c6c6b1bcdb9c *R/a_models_dlvm1.R
 cb632295acf16e15fe25d85ef3f8c74d *R/a_models_frombootnet.R
 7053eaaaef450ec18cad47c625a6eb27 *R/a_models_ggm.R
 c224624b1b1cce39eb232901443bd0a1 *R/a_models_gvar.R
@@ -141,6 +141,7 @@ dc167145db25c1f0bcf29d7cdaa43108 *R/a_models_ml_tsdlvm1.R
 fec47818cc3598d22306dde8c3e6cf6f *R/a_models_ml_tslvgvar.R
 33df560b90a27cc3b399991770eb95bf *R/a_models_panelgvar.R
 1f17afa6cd00642e05093cb356969caf *R/a_models_precision.R
+f3b955bdccf9a1ba5cde1fbbfdb85441 *R/a_models_ri_clpm.R
 8f1f952ba0de2d572e73ffa03e8efb30 *R/a_models_rnm.R
 aedf6918fe9ab0c7eb666ba5ae0bc451 *R/a_models_sem.R
 a1298451e53ed88fb622dd53a20cffcf *R/a_models_tsdlvm1.R
@@ -160,8 +161,9 @@ b905b871df523f81f63400a70ce24b8c *R/e_modelmodifications_freepar.R
 e88ebcacd989018e8396a8a0bb2c4db3 *R/e_modelmodifications_groupequal.R
 6b134679144766ed755a9fb60c4063b5 *R/e_modelmodifications_groupfree.R
 63a23ce3feb3f893272835702177ac2b *R/e_modelmodifications_intersectionmodel.R
-042e687a7d7e09fdfbafd39fda358682 *R/e_modelmodifications_partialprune.R
+1ffdda50fd8dad277814fc69c482b7cd *R/e_modelmodifications_partialprune.R
 a44973d788d5d4471a43f4c639cab915 *R/e_modelmodifications_prune.R
+f7a5f241c84e11b6e2b85605ae6cf55d *R/e_modelmodifications_ri_clpm_stationarity.R
 c754b8674488845b46f2d728b2c17a47 *R/e_modelmodifications_setequal.R
 497c50c1de878a991eb318ce6745749e *R/e_modelmodifications_transmod.R
 8d0e10692395947a0325f52264c3639b *R/e_modelmodifications_unionmodel.R
@@ -193,10 +195,10 @@ f97afbf7645916ad3258a0ee8e457eba *R/f_convenience_printMethod.R
 f6e84c7440a01a0198e8035894e16bd4 *R/f_convenience_simplestructure.R
 00861d1e4da67f644b5608d63f7f20c5 *R/g_simulations_replicator.R
 4fc53626ea47234ad25897d4e112af5c *R/h_modelsearch.R
-e23d38f0633b2101b06fae9e89f483ce *build/partial.rdb
+f99d04bfb477c58e9c3a5c281f67afa7 *build/partial.rdb
 bba76558187797b5d2b18ad3a26cde87 *data/Jonas.RData
 8362081c9fd0343b1edf5ca127654230 *data/StarWars.RData
-f33bfa61be8860fbf1d0b24eea54deb8 *man/CIplot.Rd
+1db7193c90c1e77032a59fef20307d88 *man/CIplot.Rd
 a0e15324cd252a6e2fca748c4976d31f *man/Ising.Rd
 70b0624c56c5c4f6813c88897ff6eba3 *man/Jonas.Rd
 6dc4bf5449f0ca0c2a21987cb94acf56 *man/MIs.Rd
@@ -231,12 +233,13 @@ de25227bfd9b5b080830381a408b7991 *man/ml_lvm.Rd
 068746df343b08e245bcbe95ab9af148 *man/modelupdate.Rd
 cb5a5f56e91b073592a8254f9dcc4bc5 *man/parameters.Rd
 a79632a3cc57c44db29d7181202a76b9 *man/parequal.Rd
-acbd1e37ffda487fd3fc3b85ae9db850 *man/partialprune.Rd
+0e3dc36d8af7716c1bcfd70e369c764c *man/partialprune.Rd
 0f3f94dc8490e5db70b3659afd4e9ccb *man/prune.Rd
-9bfcc1e9af024517032f32836fbc26a0 *man/psychonetrics-class.Rd
+a37af49ff073e81ab86d57dce4e8962e *man/psychonetrics-class.Rd
 23fdbb1b6ba657dc9834a5cb2e477cbb *man/psychonetrics-package.Rd
 55a670874c3dad1f12d3d359fde8c4b4 *man/psychonetrics_bootstrap-class.Rd
 dba0176b244d3364b1f6a7a3c78600f4 *man/psychonetrics_log-class.Rd
+a8b82fc7d47f6a9e9742bbbbe877e8ba *man/ri_clpm.Rd
 d65b3f5359e67bf428b6f718f480c80d *man/runmodel.Rd
 98e5bf17eb2051aad9f4ff51e5fe1f0f *man/setverbose.Rd
 02b224e4fa7feaae84a8271c6d9f9ba6 *man/simplestructure.Rd
